@@ -1,3 +1,5 @@
+![Challenge Logo](./challenge_logo.png)
+
 # March 2026 Code Challenge
 
 One small, self-contained project per day throughout March 2026. Each day lives in its own folder as a single `index.html` — no build tools, no frameworks, just HTML, CSS, and vanilla JS.
