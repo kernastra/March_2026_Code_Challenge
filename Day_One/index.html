@@ -132,17 +132,60 @@
       flex-shrink: 0;
     }
 
-    .rgb-output {
-      font-size: 1.5rem;
+    .values-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .output-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rgb-output,
+    .hsl-output {
+      font-size: 1.1rem;
       font-weight: 600;
       color: var(--text-main);
       letter-spacing: 0.02em;
+    }
+
+    .copy-btn {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      transform: translateY(-1px);
+      filter: none;
+    }
+
+    .copy-btn.copied {
+      background: var(--accent-gold);
+      color: var(--bg-color);
     }
 
     .hex-echo {
       font-size: 0.875rem;
       font-weight: 300;
       color: var(--text-muted);
+      margin-top: 0.1rem;
     }
 
     .error-msg {
@@ -173,8 +216,15 @@
     <div class="result-area" id="resultArea">
       <div class="swatch-row">
         <div class="swatch" id="swatch"></div>
-        <div>
-          <div class="rgb-output" id="rgbOutput"></div>
+        <div class="values-col">
+          <div class="output-row">
+            <div class="rgb-output" id="rgbOutput"></div>
+            <button class="copy-btn" id="copyRgb" onclick="copyValue('rgbOutput', 'copyRgb')">Copy</button>
+          </div>
+          <div class="output-row">
+            <div class="hsl-output" id="hslOutput"></div>
+            <button class="copy-btn" id="copyHsl" onclick="copyValue('hslOutput', 'copyHsl')">Copy</button>
+          </div>
           <div class="hex-echo" id="hexEcho"></div>
         </div>
       </div>
@@ -185,6 +235,39 @@
     document.getElementById('hexInput').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') extract();
     });
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s;
+      const l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+    }
+
+    function copyValue(outputId, btnId) {
+      const text = document.getElementById(outputId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(btnId);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
 
     function extract() {
       const raw = document.getElementById('hexInput').value.trim();
@@ -209,9 +292,11 @@
       const g = parseInt(hex.slice(2, 4), 16);
       const b = parseInt(hex.slice(4, 6), 16);
       const fullHex = '#' + hex.toUpperCase();
+      const [h, s, l] = rgbToHsl(r, g, b);
 
       document.getElementById('swatch').style.backgroundColor = fullHex;
       document.getElementById('rgbOutput').textContent = `rgb(${r}, ${g}, ${b})`;
+      document.getElementById('hslOutput').textContent = `hsl(${h}, ${s}%, ${l}%)`;
       document.getElementById('hexEcho').textContent = fullHex;
       resultArea.classList.add('visible');
     }
