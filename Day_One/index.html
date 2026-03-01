@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 01: Hex-to-RGB Extractor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #1e2122;
+      --modal-bg: #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold: #d4af37;
+      --text-main: #ffffff;
+      --text-muted: #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 500px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-gold);
+    }
+
+    button {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .result-area {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .result-area.visible {
+      display: flex;
+    }
+
+    .swatch-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .swatch {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      border: 1px solid var(--accent-gold);
+      flex-shrink: 0;
+    }
+
+    .rgb-output {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+    }
+
+    .hex-echo {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--text-muted);
+    }
+
+    .error-msg {
+      display: none;
+      color: #e17055;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin-top: -0.5rem;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>Day 01: Hex-to-RGB Extractor</h1>
+    <p class="subtitle">Enter a hex color code to extract its RGB values.</p>
+
+    <div class="input-row">
+      <input type="text" id="hexInput" placeholder="#d4af37" maxlength="7" />
+      <button onclick="extract()">Extract</button>
+    </div>
+
+    <p class="error-msg" id="errorMsg">Invalid hex color. Use 3 or 6 hex characters (e.g. #fff or #d4af37).</p>
+
+    <div class="result-area" id="resultArea">
+      <div class="swatch-row">
+        <div class="swatch" id="swatch"></div>
+        <div>
+          <div class="rgb-output" id="rgbOutput"></div>
+          <div class="hex-echo" id="hexEcho"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('hexInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') extract();
+    });
+
+    function extract() {
+      const raw = document.getElementById('hexInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const resultArea = document.getElementById('resultArea');
+
+      let hex = raw.startsWith('#') ? raw.slice(1) : raw;
+
+      if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(hex)) {
+        errorMsg.classList.add('visible');
+        resultArea.classList.remove('visible');
+        return;
+      }
+
+      errorMsg.classList.remove('visible');
+
+      if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      const fullHex = '#' + hex.toUpperCase();
+
+      document.getElementById('swatch').style.backgroundColor = fullHex;
+      document.getElementById('rgbOutput').textContent = `rgb(${r}, ${g}, ${b})`;
+      document.getElementById('hexEcho').textContent = fullHex;
+      resultArea.classList.add('visible');
+    }
+  </script>
+</body>
+</html>
