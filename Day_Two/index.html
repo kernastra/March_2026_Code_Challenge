@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 02: Fluid Scale Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #1e2122;
+      --modal-bg: #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold: #d4af37;
+      --text-main: #ffffff;
+      --text-muted: #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 640px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="number"] {
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      outline: none;
+      width: 140px;
+      transition: border-color 0.2s ease;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent-gold);
+    }
+
+    /* ── Scale pill selector ── */
+    .scale-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: var(--secondary-bg);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      user-select: none;
+    }
+
+    .pill:hover {
+      border-color: var(--accent-gold);
+      color: var(--text-main);
+    }
+
+    .pill.active {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border-color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    /* ── Generate button ── */
+    .generate-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.8rem 1.75rem;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      width: 100%;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .error-msg {
+      display: none;
+      color: #e17055;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* ── Result area ── */
+    .result-area {
+      display: none;
+      flex-direction: column;
+      gap: 1.75rem;
+      margin-top: 2rem;
+    }
+
+    .result-area.visible {
+      display: flex;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* ── CSS Snippet ── */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    .snippet-wrapper {
+      position: relative;
+    }
+
+    .snippet-box {
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .snippet-box .token-selector { color: var(--accent-gold); }
+    .snippet-box .token-prop     { color: #81ecec; }
+    .snippet-box .token-value    { color: #a29bfe; }
+    .snippet-box .token-punct    { color: var(--text-muted); }
+
+    .copy-snippet-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .copy-snippet-btn:hover,
+    .copy-snippet-btn.copied {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+    }
+
+    /* ── Visual Preview ── */
+    .preview-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .preview-row {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .preview-row:last-child {
+      border-bottom: none;
+    }
+
+    .preview-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      min-width: 80px;
+      flex-shrink: 0;
+      padding-top: 0.15em;
+    }
+
+    .preview-size-hint {
+      font-size: 0.7rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.3);
+      min-width: 52px;
+      flex-shrink: 0;
+      padding-top: 0.15em;
+    }
+
+    .preview-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>Day 02: Fluid Scale Generator</h1>
+    <p class="subtitle">Generate a typographic scale based on a classic ratio.</p>
+
+    <div class="controls">
+      <!-- Base size -->
+      <div>
+        <p class="field-label">Base font size (px)</p>
+        <input type="number" id="baseInput" value="16" min="8" max="32" step="1" />
+      </div>
+
+      <!-- Scale selector -->
+      <div>
+        <p class="field-label">Scale ratio</p>
+        <div class="scale-pills" id="scalePills">
+          <button class="pill active" data-ratio="1.618" data-name="Golden Ratio">Golden Ratio &nbsp;1.618</button>
+          <button class="pill" data-ratio="1.333" data-name="Perfect Fourth">Perfect Fourth &nbsp;1.333</button>
+          <button class="pill" data-ratio="1.25" data-name="Major Third">Major Third &nbsp;1.250</button>
+          <button class="pill" data-ratio="1.067" data-name="Minor Second">Minor Second &nbsp;1.067</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generate()">Generate Scale</button>
+    <p class="error-msg" id="errorMsg">Please enter a base size between 8 and 32.</p>
+
+    <div class="result-area" id="resultArea">
+      <hr class="divider" />
+
+      <!-- CSS Snippet -->
+      <div>
+        <p class="section-title">CSS Variables</p>
+        <div class="snippet-wrapper">
+          <pre class="snippet-box" id="snippetBox"></pre>
+          <button class="copy-snippet-btn" id="copyBtn" onclick="copySnippet()">Copy</button>
+        </div>
+      </div>
+
+      <!-- Visual Preview -->
+      <div>
+        <p class="section-title">Preview</p>
+        <div class="preview-stack" id="previewStack"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STEPS = [
+      { name: '--font-size-xs',   exp: -2, label: 'XS',   sample: 'The quick brown fox.' },
+      { name: '--font-size-sm',   exp: -1, label: 'SM',   sample: 'The quick brown fox.' },
+      { name: '--font-size-base', exp:  0, label: 'BASE', sample: 'The quick brown fox.' },
+      { name: '--font-size-md',   exp:  1, label: 'MD',   sample: 'Typographic Scale' },
+      { name: '--font-size-lg',   exp:  2, label: 'LG',   sample: 'Scale & Rhythm' },
+      { name: '--font-size-xl',   exp:  3, label: 'XL',   sample: 'Golden' },
+      { name: '--font-size-xxl',  exp:  4, label: 'XXL',  sample: 'Ratio' },
+    ];
+
+    // ── Pill selection ──────────────────────────────────────────────
+    let activeRatio = 1.618;
+
+    document.getElementById('scalePills').addEventListener('click', function(e) {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeRatio = parseFloat(pill.dataset.ratio);
+    });
+
+    // ── Enter key shortcut ──────────────────────────────────────────
+    document.getElementById('baseInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') generate();
+    });
+
+    // ── Core logic ─────────────────────────────────────────────────
+    function computeSize(base, ratio, exp) {
+      return base * Math.pow(ratio, exp);
+    }
+
+    function fmt(px) {
+      return px.toFixed(2) + 'px';
+    }
+
+    function generate() {
+      const raw = parseFloat(document.getElementById('baseInput').value);
+      const errorMsg = document.getElementById('errorMsg');
+
+      if (isNaN(raw) || raw < 8 || raw > 32) {
+        errorMsg.classList.add('visible');
+        document.getElementById('resultArea').classList.remove('visible');
+        return;
+      }
+      errorMsg.classList.remove('visible');
+
+      const sizes = STEPS.map(s => ({
+        ...s,
+        px: computeSize(raw, activeRatio, s.exp)
+      }));
+
+      renderSnippet(sizes);
+      renderPreview(sizes);
+      document.getElementById('resultArea').classList.add('visible');
+    }
+
+    // ── Snippet render ──────────────────────────────────────────────
+    function renderSnippet(sizes) {
+      const longestName = Math.max(...sizes.map(s => s.name.length));
+
+      const lines = sizes.map(s => {
+        const pad = ' '.repeat(longestName - s.name.length);
+        return `  <span class="token-prop">${s.name}</span>${pad}<span class="token-punct">:</span> <span class="token-value">${fmt(s.px)}</span><span class="token-punct">;</span>`;
+      });
+
+      document.getElementById('snippetBox').innerHTML =
+        `<span class="token-selector">:root</span> <span class="token-punct">{</span>\n` +
+        lines.join('\n') +
+        `\n<span class="token-punct">}</span>`;
+    }
+
+    // ── Preview render ──────────────────────────────────────────────
+    function renderPreview(sizes) {
+      const stack = document.getElementById('previewStack');
+      stack.innerHTML = '';
+
+      // Reverse so xxl is at top
+      [...sizes].reverse().forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'preview-row';
+
+        const label = document.createElement('span');
+        label.className = 'preview-label';
+        label.textContent = s.label;
+
+        const hint = document.createElement('span');
+        hint.className = 'preview-size-hint';
+        hint.textContent = fmt(s.px);
+
+        const text = document.createElement('span');
+        text.className = 'preview-text';
+        text.style.fontSize = fmt(s.px);
+        text.textContent = s.sample;
+
+        row.appendChild(label);
+        row.appendChild(hint);
+        row.appendChild(text);
+        stack.appendChild(row);
+      });
+    }
+
+    // ── Copy snippet (plain text) ───────────────────────────────────
+    function copySnippet() {
+      const sizes = getCurrentSizes();
+      if (!sizes) return;
+
+      const longestName = Math.max(...sizes.map(s => s.name.length));
+      const plain =
+        ':root {\n' +
+        sizes.map(s => {
+          const pad = ' '.repeat(longestName - s.name.length);
+          return `  ${s.name}${pad}: ${fmt(s.px)};`;
+        }).join('\n') +
+        '\n}';
+
+      navigator.clipboard.writeText(plain).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    function getCurrentSizes() {
+      const raw = parseFloat(document.getElementById('baseInput').value);
+      if (isNaN(raw) || raw < 8 || raw > 32) return null;
+      return STEPS.map(s => ({ ...s, px: computeSize(raw, activeRatio, s.exp) }));
+    }
+  </script>
+</body>
+</html>

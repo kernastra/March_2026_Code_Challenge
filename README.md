@@ -13,6 +13,7 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 | Day | Title | Description |
 |-----|-------|-------------|
 | [01](./Day_One/index.html) | Hex-to-RGB Extractor | Enter a hex color code and extract its RGB and HSL values with a live color swatch and one-click copy. |
+| [02](./Day_Two/index.html) | Fluid Scale Generator | Choose a base font size and a classic ratio (Golden Ratio, Perfect Fourth, Major Third, Minor Second) to generate a 7-step typographic scale with a live preview and one-click CSS variable export. |
 
 ---
 
