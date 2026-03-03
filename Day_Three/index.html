@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 03: Accessible Palette Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg-color: #1e2122;
+      --modal-bg: #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold: #d4af37;
+      --text-main: #ffffff;
+      --text-muted: #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Reset ── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Body & Layout ── */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal Container ── */
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 640px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Input Row ── */
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: stretch;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-gold);
+    }
+
+    /* ── Color Picker ── */
+    input[type="color"] {
+      width: 48px;
+      padding: 0.25rem;
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="color"]:hover {
+      border-color: var(--accent-gold);
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 6px;
+    }
+
+    /* ── Generate Button ── */
+    .generate-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    /* ── Error Message ── */
+    .error-msg {
+      display: none;
+      color: #e17055;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin-top: -0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ── Result Area ── */
+    .result-area {
+      display: none;
+      flex-direction: column;
+      gap: 1.75rem;
+      margin-top: 2rem;
+    }
+
+    .result-area.visible {
+      display: flex;
+      animation: fadeSlideIn 0.25s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Swatch Row (5-up flex) ── */
+    .swatch-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Swatch Card ── */
+    .swatch-card {
+      flex: 1 1 80px;
+      min-width: 80px;
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Swatch Preview Block ── */
+    .swatch-preview {
+      min-height: 100px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    /* ── Swatch Body ── */
+    .swatch-body {
+      padding: 0.6rem 0.5rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    /* ── Shade Label ── */
+    .shade-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* ── Hex Value ── */
+    .shade-hex {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Contrast Badge ── */
+    .contrast-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .contrast-badge.pass {
+      background: rgba(0, 184, 148, 0.2);
+      color: #00b894;
+      border: 1px solid rgba(0, 184, 148, 0.3);
+    }
+
+    .contrast-badge.fail {
+      background: rgba(225, 112, 85, 0.2);
+      color: #e17055;
+      border: 1px solid rgba(225, 112, 85, 0.3);
+    }
+
+    /* ── Individual Copy Button ── */
+    .copy-btn {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.2s ease;
+      white-space: nowrap;
+      width: fit-content;
+    }
+
+    .copy-btn:hover,
+    .copy-btn.copied {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      transform: translateY(-1px);
+      filter: none;
+    }
+
+    /* ── CSS Vars Export Section ── */
+    .snippet-wrapper {
+      position: relative;
+    }
+
+    .snippet-box {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ── Syntax Highlight Tokens ── */
+    .token-selector { color: var(--accent-gold); }
+    .token-prop     { color: #74b9ff; }
+    .token-value    { color: #a29bfe; }
+    .token-punct    { color: var(--text-muted); opacity: 0.6; }
+
+    /* ── Copy CSS Vars Button ── */
+    .copy-snippet-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .copy-snippet-btn:hover,
+    .copy-snippet-btn.copied {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      transform: translateY(-1px);
+      filter: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>Day 03: Accessible Palette Generator</h1>
+    <p class="subtitle">Enter a hex color to generate a 5-shade accessible palette with WCAG contrast scores.</p>
+
+    <div class="input-row">
+      <input type="text" id="hexInput" placeholder="#d4af37" maxlength="7" aria-label="Hex color input" />
+      <input type="color" id="colorPicker" value="#d4af37" aria-label="Color picker" />
+      <button class="generate-btn" onclick="generate()">Generate</button>
+    </div>
+
+    <p class="error-msg" id="errorMsg">Invalid hex color. Use 3 or 6 hex characters (e.g. #fff or #d4af37).</p>
+
+    <div class="result-area" id="resultArea">
+      <hr class="divider" />
+
+      <section>
+        <p class="section-title">Generated Palette</p>
+        <div class="swatch-row" id="swatchRow"></div>
+      </section>
+
+      <section>
+        <p class="section-title">CSS Variables</p>
+        <div class="snippet-wrapper">
+          <pre class="snippet-box" id="snippetBox"></pre>
+          <button class="copy-snippet-btn" id="copyVarsBtn" onclick="copyCssVars()">Copy</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /* ── State ── */
+    const SHADE_STEPS = [
+      { label: '100', lightness: 90 },
+      { label: '300', lightness: 70 },
+      { label: '500', lightness: 50 },
+      { label: '700', lightness: 30 },
+      { label: '900', lightness: 15 },
+    ];
+    let currentShades = [];
+
+    /* ── Event Wiring ── */
+    const hexInput    = document.getElementById('hexInput');
+    const colorPicker = document.getElementById('colorPicker');
+    const swatchRow   = document.getElementById('swatchRow');
+
+    hexInput.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+    hexInput.addEventListener('input', syncPickerToText);
+    colorPicker.addEventListener('input', () => { syncTextToPicker(); generate(); });
+    swatchRow.addEventListener('click', e => {
+      const btn = e.target.closest('.copy-btn');
+      if (btn) copyHex(btn.dataset.hex, btn);
+    });
+
+    /* ── Color Math: hexToRgb ── */
+    function hexToRgb(hex) {
+      hex = hex.trim().replace(/^#/, '');
+      if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) return null;
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16),
+      };
+    }
+
+    /* ── Color Math: rgbToHsl ── */
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s;
+      const l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+    }
+
+    /* ── Color Math: hslToHex ── */
+    function hueToRgb(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    }
+
+    function componentToHex(c) {
+      const h = Math.round(Math.min(255, Math.max(0, c * 255))).toString(16);
+      return h.length === 1 ? '0' + h : h;
+    }
+
+    function hslToHex(h, s, l) {
+      s /= 100; l /= 100;
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        const hNorm = h / 360;
+        r = hueToRgb(p, q, hNorm + 1 / 3);
+        g = hueToRgb(p, q, hNorm);
+        b = hueToRgb(p, q, hNorm - 1 / 3);
+      }
+      return ('#' + componentToHex(r) + componentToHex(g) + componentToHex(b)).toUpperCase();
+    }
+
+    /* ── Color Math: computeLuminance ── */
+    function computeLuminance(r, g, b) {
+      const lin = c => {
+        c /= 255;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      };
+      return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    }
+
+    /* ── Color Math: computeContrast ── */
+    function computeContrast(lum1, lum2) {
+      const lighter = Math.max(lum1, lum2);
+      const darker  = Math.min(lum1, lum2);
+      return parseFloat(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
+    }
+
+    /* ── Shade Generation ── */
+    function generateShades(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      const [h, s] = rgbToHsl(r, g, b);
+
+      return SHADE_STEPS.map(step => {
+        const shadeHex = hslToHex(h, s, step.lightness);
+        const { r: sr, g: sg, b: sb } = hexToRgb(shadeHex);
+        const lum = computeLuminance(sr, sg, sb);
+        const contrastWhite = computeContrast(lum, 1.0);
+        const contrastBlack = computeContrast(lum, 0.0);
+        const bestContrast  = Math.max(contrastWhite, contrastBlack);
+        return {
+          label: step.label,
+          hex: shadeHex,
+          lum,
+          contrastWhite,
+          contrastBlack,
+          bestContrast,
+          pass: bestContrast >= 4.5,
+          textColor: contrastWhite >= contrastBlack ? '#FFFFFF' : '#000000',
+        };
+      });
+    }
+
+    /* ── Accessibility: getWcagBadge ── */
+    function getWcagBadge(shade) {
+      const ratio = shade.bestContrast.toFixed(1) + ':1';
+      const symbol = shade.pass ? '✓' : '✗';
+      return { text: ratio + ' AA ' + symbol, cssClass: shade.pass ? 'pass' : 'fail' };
+    }
+
+    /* ── Render: renderSwatches ── */
+    function renderSwatches(shades) {
+      swatchRow.innerHTML = '';
+      shades.forEach(shade => {
+        const card = document.createElement('div');
+        card.className = 'swatch-card';
+
+        const preview = document.createElement('div');
+        preview.className = 'swatch-preview';
+        preview.style.backgroundColor = shade.hex;
+
+        const body = document.createElement('div');
+        body.className = 'swatch-body';
+
+        const label = document.createElement('span');
+        label.className = 'shade-label';
+        label.textContent = shade.label;
+
+        const hexEl = document.createElement('span');
+        hexEl.className = 'shade-hex';
+        hexEl.textContent = shade.hex;
+
+        const badge = document.createElement('span');
+        const { text, cssClass } = getWcagBadge(shade);
+        badge.className = 'contrast-badge ' + cssClass;
+        badge.textContent = text;
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.textContent = 'Copy';
+        copyBtn.dataset.hex = shade.hex;
+
+        body.appendChild(label);
+        body.appendChild(hexEl);
+        body.appendChild(badge);
+        body.appendChild(copyBtn);
+
+        card.appendChild(preview);
+        card.appendChild(body);
+        swatchRow.appendChild(card);
+      });
+    }
+
+    /* ── Render: renderSnippet ── */
+    function renderSnippet(shades) {
+      const lines = shades.map(s =>
+        `  <span class="token-prop">--color-${s.label}</span>` +
+        `<span class="token-punct">:</span> ` +
+        `<span class="token-value">${s.hex}</span>` +
+        `<span class="token-punct">;</span>`
+      );
+      document.getElementById('snippetBox').innerHTML =
+        `<span class="token-selector">:root</span> <span class="token-punct">{</span>\n` +
+        lines.join('\n') +
+        `\n<span class="token-punct">}</span>`;
+    }
+
+    /* ── Copy: copyHex ── */
+    function copyHex(hex, btn) {
+      navigator.clipboard.writeText(hex).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      }).catch(() => {});
+    }
+
+    /* ── Copy: copyCssVars ── */
+    function copyCssVars() {
+      const lines = currentShades.map(s => `  --color-${s.label}: ${s.hex};`);
+      const block = ':root {\n' + lines.join('\n') + '\n}';
+      navigator.clipboard.writeText(block).then(() => {
+        const btn = document.getElementById('copyVarsBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      }).catch(() => {});
+    }
+
+    /* ── Sync: syncPickerToText ── */
+    function syncPickerToText() {
+      const raw = hexInput.value.trim();
+      const rgb = hexToRgb(raw);
+      if (rgb) {
+        const hex = raw.replace(/^#/, '').padStart(6, '0');
+        const full = (hex.length === 3)
+          ? '#' + hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+          : '#' + hex;
+        colorPicker.value = full.toLowerCase();
+      }
+    }
+
+    /* ── Sync: syncTextToPicker ── */
+    function syncTextToPicker() {
+      hexInput.value = colorPicker.value.toUpperCase();
+    }
+
+    /* ── Entry: generate ── */
+    function generate() {
+      const raw = hexInput.value.trim();
+      const errorMsg  = document.getElementById('errorMsg');
+      const resultArea = document.getElementById('resultArea');
+
+      if (!hexToRgb(raw)) {
+        errorMsg.classList.add('visible');
+        resultArea.classList.remove('visible');
+        return;
+      }
+
+      errorMsg.classList.remove('visible');
+      currentShades = generateShades(raw);
+      renderSwatches(currentShades);
+      renderSnippet(currentShades);
+      resultArea.classList.add('visible');
+    }
+  </script>
+</body>
+</html>
