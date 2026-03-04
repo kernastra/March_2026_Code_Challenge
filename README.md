@@ -15,6 +15,7 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 | [01](./Day_One/index.html) | Hex-to-RGB Extractor | Enter a hex color code and extract its RGB and HSL values with a live color swatch and one-click copy. |
 | [02](./Day_Two/index.html) | Fluid Scale Generator | Choose a base font size and a classic ratio (Golden Ratio, Perfect Fourth, Major Third, Minor Second) to generate a 7-step typographic scale with a live preview and one-click CSS variable export. |
 | [03](./Day_Three/index.html) | Accessible Palette Generator | Enter a hex color to generate a 5-shade tonal palette (100–900) with WCAG AA contrast scores and one-click CSS variable export. |
+| [04](./Day_Four/index.html) | CSS Variable Injector | Edit the Golden Dark design token values live with synchronized color pickers and hex inputs — the Live Preview updates instantly. Copy the modified `:root { }` block for use in your own project. |
 
 ---
 
@@ -24,7 +25,7 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 - [x] Day 01: Hex-to-RGB & Contrast Extractor
 - [x] Day 02: Fluid Type & Golden Ratio Generator (Typographic scaling)
 - [x] Day 03: Accessible Palette Generator (Generates 5 shades based on one hex)
-- [ ] Day 04: CSS Variable Injector (Live preview of STYLE.md changes)
+- [x] Day 04: CSS Variable Injector (Live preview of STYLE.md changes)
 - [ ] Day 05: Google Fonts Pairer (Visualizes two fonts side-by-side)
 - [ ] Day 06: Glassmorphism UI Maker (Generates backdrop-filter snippets)
 - [ ] Day 07: SVG Wave/Blob Generator (For section dividers)

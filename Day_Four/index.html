@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 04: CSS Variable Injector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Body & Layout ── */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal Container ── */
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 860px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Panel Layout ── */
+    .editor-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    /* ── Controls Panel ── */
+    .controls-panel {
+      flex: 0 0 280px;
+    }
+
+    .var-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* ── Var Row ── */
+    .var-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--secondary-bg);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .var-label {
+      flex: 1;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      font-family: 'Outfit', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Color Picker Input ── */
+    .color-picker {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+      flex-shrink: 0;
+    }
+
+    .color-picker::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker::-webkit-color-swatch {
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 5px;
+    }
+
+    /* ── Hex Text Input ── */
+    .hex-input {
+      width: 88px;
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: 'Outfit', monospace;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.5rem;
+      text-align: center;
+      transition: border-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .hex-input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    .hex-input.invalid {
+      border-color: #e17055;
+      color: #e17055;
+    }
+
+    /* ── Preview Panel ── */
+    .preview-panel {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preview-wrap {
+      background: var(--bg-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* ── Preview Card ── */
+    .preview-card {
+      background: var(--modal-bg);
+      border-radius: 12px;
+      border-top: 3px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 1rem 1.1rem 0.85rem;
+    }
+
+    .preview-heading {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.25rem;
+    }
+
+    .preview-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .preview-body {
+      padding: 0.75rem 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .preview-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .preview-input {
+      flex: 1;
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.72rem;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .preview-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      border-radius: 6px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: default;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .preview-tag-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-tag {
+      background: var(--secondary-bg);
+      color: var(--text-muted);
+      border-radius: 20px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.68rem;
+      font-weight: 300;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      margin: 2rem 0;
+    }
+
+    /* ── Output Section ── */
+    .output-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Snippet Box ── */
+    .snippet-box {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      font-family: 'Outfit', monospace;
+      font-size: 0.8rem;
+      line-height: 1.85;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ── Syntax Highlight Tokens ── */
+    .token-selector { color: var(--accent-gold); }
+    .token-prop     { color: #74b9ff; }
+    .token-value    { color: #a29bfe; }
+    .token-punct    { color: var(--text-muted); opacity: 0.6; }
+
+    /* ── Action Row ── */
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* ── Ghost Reset Button ── */
+    .reset-btn {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .reset-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ── Copy Button ── */
+    .copy-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .copy-btn.copied {
+      background: #00b894;
+      color: #fff;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .editor-layout {
+        flex-direction: column;
+      }
+
+      .controls-panel {
+        flex: none;
+        width: 100%;
+      }
+
+      .action-row {
+        flex-direction: column-reverse;
+      }
+
+      .reset-btn,
+      .copy-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>CSS Variable Injector</h1>
+    <p class="subtitle">Edit your Golden Dark design tokens and watch every element update live. Copy the result to use in your own project.</p>
+
+    <div class="editor-layout">
+
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <div class="panel-title">Design Tokens</div>
+        <div class="var-list" id="varList">
+          <!-- Rows injected by JS -->
+        </div>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="preview-panel">
+        <div class="panel-title">Live Preview</div>
+        <div class="preview-wrap">
+          <div class="preview-card">
+            <div class="preview-header">
+              <div class="preview-heading">Golden Dark UI</div>
+              <div class="preview-sub">Watching your tokens in action</div>
+            </div>
+            <div class="preview-body">
+              <div class="preview-input-row">
+                <input class="preview-input" type="text" placeholder="Enter a value…" readonly />
+                <button class="preview-btn">Apply</button>
+              </div>
+              <div class="preview-tag-row">
+                <span class="preview-tag">--bg-color</span>
+                <span class="preview-tag">--accent-gold</span>
+                <span class="preview-tag">--text-muted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider" />
+
+    <div class="output-section">
+      <div class="panel-title">CSS Output</div>
+      <div class="snippet-box" id="snippetBox"></div>
+      <div class="action-row">
+        <button class="reset-btn" onclick="resetAll()">Reset to Defaults</button>
+        <button class="copy-btn" id="copyBtn" onclick="copyVars()">Copy CSS</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── State ── */
+    const DEFAULTS = {
+      '--bg-color':     '#1e2122',
+      '--modal-bg':     '#2d3436',
+      '--secondary-bg': '#3b4244',
+      '--accent-gold':  '#d4af37',
+      '--text-main':    '#ffffff',
+      '--text-muted':   '#dfe6e9',
+    };
+
+    const state = { ...DEFAULTS };
+
+    /* ── Hex Validation ── */
+    function isValidHex(hex) {
+      return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(hex);
+    }
+
+    function expandHex(hex) {
+      // Expand 3-char to 6-char
+      if (/^#[0-9a-fA-F]{3}$/.test(hex)) {
+        const [, r, g, b] = hex;
+        return `#${r}${r}${g}${g}${b}${b}`;
+      }
+      return hex.toLowerCase();
+    }
+
+    /* ── Apply a CSS variable to the preview panel only ── */
+    function applyVar(name, hex) {
+      document.querySelector('.preview-wrap').style.setProperty(name, hex);
+    }
+
+    /* ── Update state, apply to root, re-render snippet, sync sibling ── */
+    function updateVar(name, hex, source) {
+      if (!isValidHex(hex)) return;
+      const full = expandHex(hex);
+      state[name] = full;
+      applyVar(name, full);
+      renderSnippet();
+
+      // Sync the other input in the same row
+      const row = document.querySelector(`.var-row[data-var="${name}"]`);
+      if (!row) return;
+      if (source === 'picker') {
+        row.querySelector('.hex-input').value = full;
+        row.querySelector('.hex-input').classList.remove('invalid');
+      } else {
+        row.querySelector('.color-picker').value = full;
+      }
+    }
+
+    /* ── Build a single var row element ── */
+    function buildRow(name, hex) {
+      const row = document.createElement('div');
+      row.className = 'var-row';
+      row.dataset.var = name;
+
+      const label = document.createElement('span');
+      label.className = 'var-label';
+      label.textContent = name;
+
+      const picker = document.createElement('input');
+      picker.type = 'color';
+      picker.className = 'color-picker';
+      picker.value = hex;
+      picker.addEventListener('input', () => updateVar(name, picker.value, 'picker'));
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.className = 'hex-input';
+      textInput.value = hex;
+      textInput.maxLength = 7;
+      textInput.spellcheck = false;
+
+      textInput.addEventListener('input', () => {
+        const val = textInput.value.startsWith('#') ? textInput.value : `#${textInput.value}`;
+        if (isValidHex(val)) {
+          textInput.classList.remove('invalid');
+          updateVar(name, val, 'text');
+        } else {
+          textInput.classList.add('invalid');
+        }
+      });
+
+      textInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') textInput.dispatchEvent(new Event('input'));
+      });
+
+      row.appendChild(label);
+      row.appendChild(picker);
+      row.appendChild(textInput);
+      return row;
+    }
+
+    /* ── Render all token rows ── */
+    function renderRows() {
+      const list = document.getElementById('varList');
+      list.innerHTML = '';
+      for (const [name, hex] of Object.entries(state)) {
+        list.appendChild(buildRow(name, hex));
+      }
+    }
+
+    /* ── Render syntax-highlighted :root { } snippet ── */
+    function renderSnippet() {
+      const lines = Object.entries(state).map(([name, hex]) =>
+        `  <span class="token-prop">${name}</span><span class="token-punct">:</span> <span class="token-value">${hex}</span><span class="token-punct">;</span>`
+      ).join('\n');
+
+      document.getElementById('snippetBox').innerHTML =
+        `<span class="token-selector">:root</span> <span class="token-punct">{</span>\n${lines}\n<span class="token-punct">}</span>`;
+    }
+
+    /* ── Copy plain-text CSS to clipboard ── */
+    function copyVars() {
+      const lines = Object.entries(state).map(([name, hex]) => `  ${name}: ${hex};`).join('\n');
+      const css = `:root {\n${lines}\n}`;
+
+      navigator.clipboard.writeText(css).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy CSS';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Reset all tokens to STYLE.md defaults ── */
+    function resetAll() {
+      for (const [name, hex] of Object.entries(DEFAULTS)) {
+        state[name] = hex;
+      }
+      document.querySelector('.preview-wrap').style.cssText = '';
+      renderRows();
+      renderSnippet();
+    }
+
+    /* ── Init ── */
+    renderRows();
+    renderSnippet();
+  </script>
+</body>
+</html>

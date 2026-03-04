@@ -28,3 +28,30 @@ All tasks complete. The file is self-contained at `Day_Three/index.html` with no
 - [ ] "Copy CSS Variables" → copies valid `:root { }` block
 - [ ] Mobile: swatch cards flex-wrap gracefully
 - [ ] WCAG pass badges (green) on high-contrast shades, fail (red) on low-contrast
+
+---
+
+## Day 04: CSS Variable Injector
+
+### Plan
+- [ ] Create `Day_Four/` folder and `index.html`
+- [ ] Implement CSS (Golden Dark system, two-panel layout, preview card, snippet box)
+- [ ] Implement HTML structure (controls panel, preview panel, output section)
+- [ ] Implement `DEFAULTS` + `state` objects with all 6 CSS color tokens
+- [ ] Implement `applyVar()`, `updateVar()`, `syncRow()` for live var injection
+- [ ] Implement `renderSnippet()` with syntax-highlighted `:root { }` output
+- [ ] Implement `copyVars()` with 1.5s "Copied!" feedback
+- [ ] Implement `resetAll()` to restore STYLE.md defaults
+- [ ] Wire color picker ↔ hex input bidirectional sync per row
+- [ ] Update README.md — check off Day 04 in roadmap
+
+### Verification Checklist
+- [ ] Change `--accent-gold` → modal border-top, button, heading, snippet token all update live
+- [ ] Change `--bg-color` → body background AND preview-wrap background update
+- [ ] Change `--modal-bg` → modal card background updates
+- [ ] 3-char hex `#fff` accepted in text input, expands & applies
+- [ ] Invalid hex `#xyz` → input turns red / ignored (no crash)
+- [ ] "Reset to Defaults" → all pickers, inputs, CSS vars, and snippet reset to Golden Dark defaults
+- [ ] "Copy CSS" → clipboard contains valid `:root { ... }` block + 1.5s feedback
+- [ ] Mobile (≤ 640px) → panels stack vertically, preview below controls
+- [ ] Color picker and text input stay in sync bidirectionally
