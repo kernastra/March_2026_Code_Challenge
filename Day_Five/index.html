@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 05: Google Fonts Pairer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Body & Layout ── */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal Container ── */
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 900px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+
+    /* ── Pairer Layout ── */
+    .pairer-layout {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    /* ── Font Panel ── */
+    .font-panel {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .font-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .font-slot-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+    }
+
+    .font-slot-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── Search Input ── */
+    .font-search {
+      width: 100%;
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .font-search::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .font-search:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    /* ── Font List ── */
+    .font-list {
+      list-style: none;
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      height: 220px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--secondary-bg) transparent;
+    }
+
+    .font-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .font-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .font-list::-webkit-scrollbar-thumb {
+      background: var(--secondary-bg);
+      border-radius: 4px;
+    }
+
+    .font-list li {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.15s;
+      color: var(--text-muted);
+    }
+
+    .font-list li:last-child {
+      border-bottom: none;
+    }
+
+    .font-list li:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    .font-list li.active {
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .font-list li .font-category {
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .font-list li.active .font-category {
+      color: rgba(212, 175, 55, 0.5);
+    }
+
+    .font-list .no-results {
+      padding: 2rem 0.75rem;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.8rem;
+      cursor: default;
+    }
+
+    .font-list .no-results:hover {
+      background: none;
+    }
+
+    /* ── Controls ── */
+    .font-controls {
+      margin-top: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .control-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      width: 54px;
+      flex-shrink: 0;
+    }
+
+    .control-value {
+      font-size: 0.72rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Range Slider ── */
+    .font-range {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: var(--secondary-bg);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .font-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .font-range::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .font-range::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    /* ── Weight Select ── */
+    .weight-select {
+      flex: 1;
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .weight-select:focus {
+      border-color: var(--accent-gold);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      margin: 2rem 0;
+    }
+
+    /* ── Preview Section ── */
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .preview-card {
+      background: var(--bg-color);
+      border-radius: 12px;
+      padding: 2rem 2.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    #previewHeading {
+      color: var(--text-main);
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    #previewBody {
+      color: var(--text-muted);
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    /* ── Preview Meta Row ── */
+    .preview-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .preview-meta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .preview-meta-dot.heading {
+      background: var(--accent-gold);
+    }
+
+    .preview-meta-dot.body {
+      background: #74b9ff;
+    }
+
+    .preview-meta-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* ── Output Section ── */
+    .output-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Snippet Box ── */
+    .snippet-box {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      font-family: 'Outfit', monospace;
+      font-size: 0.8rem;
+      line-height: 1.85;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ── Syntax Highlight Tokens ── */
+    .token-selector { color: var(--accent-gold); }
+    .token-prop     { color: #74b9ff; }
+    .token-value    { color: #a29bfe; }
+    .token-punct    { color: var(--text-muted); opacity: 0.6; }
+    .token-comment  { color: rgba(255, 255, 255, 0.2); font-style: italic; }
+    .token-at       { color: #fd79a8; }
+    .token-url      { color: #55efc4; }
+
+    /* ── Action Row ── */
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* ── Copy Button ── */
+    .copy-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .copy-btn.copied {
+      background: #00b894;
+      color: #fff;
+    }
+
+    /* ── API Key Bar ── */
+    .api-key-bar {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .api-key-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .api-key-input {
+      flex: 1;
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 7px;
+      color: var(--text-main);
+      font-family: 'Outfit', monospace;
+      font-size: 0.8rem;
+      font-weight: 300;
+      padding: 0.5rem 0.75rem;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+
+    .api-key-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .api-key-input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    .api-key-input.error {
+      border-color: #e17055;
+    }
+
+    .api-load-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      border-radius: 7px;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      white-space: nowrap;
+      transition: filter 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .api-load-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .api-load-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+    }
+
+    .api-key-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.55rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .api-status {
+      font-size: 0.73rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .api-status.loading { color: var(--text-muted); }
+    .api-status.success { color: #00b894; font-weight: 600; }
+    .api-status.error   { color: #e17055; }
+
+    .api-link {
+      font-size: 0.72rem;
+      color: var(--accent-gold);
+      text-decoration: none;
+      font-weight: 300;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+
+    .api-link:hover {
+      opacity: 1;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .pairer-layout {
+        flex-direction: column;
+      }
+
+      .font-panel {
+        width: 100%;
+      }
+
+      .preview-card {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .action-row {
+        flex-direction: column-reverse;
+      }
+
+      .copy-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>Google Fonts Pairer</h1>
+    <p class="subtitle">Search and select two Google Fonts — one for headings, one for body text. See them side-by-side and copy the ready-to-use CSS.</p>
+
+    <!-- ── API Key Bar ── -->
+    <div class="api-key-bar">
+      <div class="api-key-row">
+        <input
+          type="text"
+          id="apiKeyInput"
+          class="api-key-input"
+          placeholder="Paste your Google Fonts API key to unlock all 1,500+ fonts…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="api-load-btn" id="apiLoadBtn" onclick="loadFontLibrary()">Load Fonts</button>
+      </div>
+      <div class="api-key-meta">
+        <span class="api-status" id="apiStatus">Using built-in library of 50 popular fonts.</span>
+        <a class="api-link" href="https://developers.google.com/fonts/docs/developer_api" target="_blank" rel="noopener noreferrer">Get a free API key →</a>
+      </div>
+    </div>
+
+    <!-- ── Pairer Layout ── -->
+    <div class="pairer-layout">
+
+      <!-- Font A Panel -->
+      <div class="font-panel">
+        <div class="font-panel-header">
+          <span class="font-slot-badge">A</span>
+          <span class="font-slot-label">Heading Font</span>
+        </div>
+        <input
+          type="text"
+          class="font-search"
+          id="searchA"
+          placeholder="Search fonts…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <ul class="font-list" id="listA"></ul>
+        <div class="font-controls">
+          <div class="control-row">
+            <span class="control-label">Weight</span>
+            <select class="weight-select" id="weightA"></select>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Size</span>
+            <input type="range" class="font-range" id="sizeA" min="1.5" max="5" step="0.1" value="3.0" />
+            <span class="control-value" id="sizeAVal">3.0rem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Font B Panel -->
+      <div class="font-panel">
+        <div class="font-panel-header">
+          <span class="font-slot-badge" style="background:#74b9ff;">B</span>
+          <span class="font-slot-label">Body Font</span>
+        </div>
+        <input
+          type="text"
+          class="font-search"
+          id="searchB"
+          placeholder="Search fonts…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <ul class="font-list" id="listB"></ul>
+        <div class="font-controls">
+          <div class="control-row">
+            <span class="control-label">Weight</span>
+            <select class="weight-select" id="weightB"></select>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Size</span>
+            <input type="range" class="font-range" id="sizeB" min="0.75" max="1.5" step="0.05" value="1.05" />
+            <span class="control-value" id="sizeBVal">1.05rem</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── Live Preview ── -->
+    <div class="preview-section">
+      <div class="panel-title">Live Preview</div>
+      <div class="preview-meta">
+        <div class="preview-meta-item">
+          <div class="preview-meta-dot heading"></div>
+          <span id="metaA">Playfair Display — 700 — 3.0rem</span>
+        </div>
+        <div class="preview-meta-item">
+          <div class="preview-meta-dot body"></div>
+          <span id="metaB">Lato — 400 — 1.05rem</span>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div id="previewHeading">The quick brown fox jumps over the lazy dog</div>
+        <div id="previewBody">Typography is the art and technique of arranging type to make written language legible, readable, and appealing. The arrangement of type involves selecting typefaces, point sizes, line lengths, line-spacing, and letter-spacing.</div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── CSS Output ── -->
+    <div class="output-section">
+      <div class="panel-title">CSS Output</div>
+      <div class="snippet-box" id="snippetBox"></div>
+      <div class="action-row">
+        <button class="copy-btn" id="copyBtn" onclick="copySnippet()">Copy CSS</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── API Key Storage Key ── */
+    const LS_KEY = 'gfonts_api_key';
+
+    /* ── Font Library ── */
+    const FONTS = [
+      /* Serif */
+      { name: 'Abril Fatface',       category: 'display',    weights: [400] },
+      { name: 'Cormorant Garamond',  category: 'serif',      weights: [300, 400, 500, 600, 700] },
+      { name: 'Crimson Text',        category: 'serif',      weights: [400, 600, 700] },
+      { name: 'DM Serif Display',    category: 'serif',      weights: [400] },
+      { name: 'EB Garamond',         category: 'serif',      weights: [400, 500, 600, 700, 800] },
+      { name: 'Libre Baskerville',   category: 'serif',      weights: [400, 700] },
+      { name: 'Lora',                category: 'serif',      weights: [400, 500, 600, 700] },
+      { name: 'Merriweather',        category: 'serif',      weights: [300, 400, 700, 900] },
+      { name: 'Noto Serif',          category: 'serif',      weights: [400, 700] },
+      { name: 'Playfair Display',    category: 'serif',      weights: [400, 500, 600, 700, 800, 900] },
+      { name: 'PT Serif',            category: 'serif',      weights: [400, 700] },
+      { name: 'Source Serif 4',      category: 'serif',      weights: [300, 400, 600, 700] },
+      { name: 'Spectral',            category: 'serif',      weights: [300, 400, 500, 600, 700] },
+
+      /* Sans-serif */
+      { name: 'Cabin',               category: 'sans-serif', weights: [400, 500, 600, 700] },
+      { name: 'DM Sans',             category: 'sans-serif', weights: [300, 400, 500, 700] },
+      { name: 'Fira Sans',           category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'IBM Plex Sans',       category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Inter',               category: 'sans-serif', weights: [300, 400, 500, 600, 700, 800] },
+      { name: 'Josefin Sans',        category: 'sans-serif', weights: [300, 400, 600, 700] },
+      { name: 'Karla',               category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Lato',                category: 'sans-serif', weights: [300, 400, 700, 900] },
+      { name: 'Manrope',             category: 'sans-serif', weights: [300, 400, 500, 600, 700, 800] },
+      { name: 'Montserrat',          category: 'sans-serif', weights: [300, 400, 500, 600, 700, 800] },
+      { name: 'Mulish',              category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Nunito',              category: 'sans-serif', weights: [300, 400, 600, 700] },
+      { name: 'Open Sans',           category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Poppins',             category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Quicksand',           category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Raleway',             category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Roboto',              category: 'sans-serif', weights: [300, 400, 500, 700] },
+      { name: 'Rubik',               category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+      { name: 'Source Sans 3',       category: 'sans-serif', weights: [300, 400, 600, 700] },
+      { name: 'Ubuntu',              category: 'sans-serif', weights: [300, 400, 500, 700] },
+      { name: 'Work Sans',           category: 'sans-serif', weights: [300, 400, 500, 600, 700] },
+
+      /* Display */
+      { name: 'Anton',               category: 'display',    weights: [400] },
+      { name: 'Bebas Neue',          category: 'display',    weights: [400] },
+      { name: 'Comfortaa',           category: 'display',    weights: [300, 400, 500, 600, 700] },
+      { name: 'Exo 2',               category: 'display',    weights: [300, 400, 500, 600, 700] },
+      { name: 'Kanit',               category: 'display',    weights: [300, 400, 500, 600, 700] },
+      { name: 'Oswald',              category: 'display',    weights: [300, 400, 500, 600, 700] },
+      { name: 'Pacifico',            category: 'display',    weights: [400] },
+      { name: 'Righteous',           category: 'display',    weights: [400] },
+      { name: 'Titillium Web',       category: 'display',    weights: [300, 400, 600, 700] },
+      { name: 'Varela Round',        category: 'display',    weights: [400] },
+
+      /* Monospace */
+      { name: 'Fira Code',           category: 'mono',       weights: [300, 400, 500, 600, 700] },
+      { name: 'IBM Plex Mono',       category: 'mono',       weights: [300, 400, 500, 600, 700] },
+      { name: 'Inconsolata',         category: 'mono',       weights: [300, 400, 500, 600, 700] },
+      { name: 'JetBrains Mono',      category: 'mono',       weights: [300, 400, 500, 600, 700, 800] },
+      { name: 'Roboto Mono',         category: 'mono',       weights: [300, 400, 500, 700] },
+      { name: 'Source Code Pro',     category: 'mono',       weights: [300, 400, 500, 600, 700] },
+      { name: 'Space Mono',          category: 'mono',       weights: [400, 700] },
+    ];
+
+    /* ── Active font library (starts as built-in, replaced on API load) ── */
+    let fontLibrary = FONTS.slice();
+
+    /* ── Parse Google Fonts API variants → numeric weight array ── */
+    function parseWeights(variants) {
+      return variants
+        .filter(v => !v.includes('italic'))
+        .map(v => v === 'regular' ? 400 : parseInt(v, 10))
+        .filter(w => !isNaN(w))
+        .sort((a, b) => a - b);
+    }
+
+    /* ── Map API category string to our category labels ── */
+    function mapCategory(cat) {
+      switch (cat) {
+        case 'sans-serif':  return 'sans-serif';
+        case 'serif':       return 'serif';
+        case 'display':     return 'display';
+        case 'handwriting': return 'handwriting';
+        case 'monospace':   return 'mono';
+        default:            return cat;
+      }
+    }
+
+    /* ── Load all fonts from Google Fonts API ── */
+    async function loadFontLibrary() {
+      const input   = document.getElementById('apiKeyInput');
+      const btn     = document.getElementById('apiLoadBtn');
+      const status  = document.getElementById('apiStatus');
+      const key     = input.value.trim();
+
+      if (!key) {
+        setApiStatus('error', 'Please paste an API key first.');
+        input.classList.add('error');
+        return;
+      }
+
+      input.classList.remove('error');
+      btn.disabled = true;
+      setApiStatus('loading', 'Loading font library…');
+
+      try {
+        const url = `https://www.googleapis.com/webfonts/v1/webfonts?key=${encodeURIComponent(key)}&sort=popularity`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = errData?.error?.message || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+
+        const data = await res.json();
+        const items = data.items || [];
+
+        fontLibrary = items.map(f => ({
+          name:     f.family,
+          category: mapCategory(f.category),
+          weights:  parseWeights(f.variants),
+        }));
+
+        // Persist key and success
+        localStorage.setItem(LS_KEY, key);
+        setApiStatus('success', `${fontLibrary.length.toLocaleString()} fonts loaded.`);
+
+        // Re-render lists with full library
+        renderList('fontA', document.getElementById('searchA').value);
+        renderList('fontB', document.getElementById('searchB').value);
+
+      } catch (err) {
+        input.classList.add('error');
+        setApiStatus('error', `Error: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function setApiStatus(type, msg) {
+      const el = document.getElementById('apiStatus');
+      el.className = `api-status ${type}`;
+      el.textContent = msg;
+    }
+
+    /* ── State ── */
+    const state = {
+      fontA: { name: 'Playfair Display', weight: 700,  size: 3.0  },
+      fontB: { name: 'Lato',             weight: 400,  size: 1.05 },
+    };
+
+    const loadedFonts = new Set();
+
+    /* ── Get font object by name ── */
+    function getFont(name) {
+      return fontLibrary.find(f => f.name === name);
+    }
+
+    /* ── Category → fallback stack ── */
+    function getFallback(category) {
+      switch (category) {
+        case 'serif':     return 'Georgia, serif';
+        case 'sans-serif': return 'system-ui, sans-serif';
+        case 'display':   return 'Impact, sans-serif';
+        case 'mono':      return '"Courier New", monospace';
+        default:          return 'sans-serif';
+      }
+    }
+
+    /* ── Load font from Google Fonts CDN ── */
+    function loadFont(name) {
+      if (loadedFonts.has(name)) return;
+      loadedFonts.add(name);
+
+      const font = getFont(name);
+      if (!font) return;
+
+      const familyParam = name.replace(/ /g, '+');
+      const weightsParam = font.weights.join(';');
+      const href = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsParam}&display=swap`;
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+
+    /* ── Populate weight select for a slot ── */
+    function populateWeights(slot) {
+      const s = state[slot];
+      const font = getFont(s.name);
+      const selectEl = document.getElementById(slot === 'fontA' ? 'weightA' : 'weightB');
+      selectEl.innerHTML = '';
+
+      const weights = font ? font.weights : [400];
+      weights.forEach(w => {
+        const opt = document.createElement('option');
+        opt.value = w;
+        opt.textContent = w;
+        if (w === s.weight) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+
+      // Snap weight to nearest available
+      if (!weights.includes(s.weight)) {
+        s.weight = weights.reduce((prev, curr) =>
+          Math.abs(curr - s.weight) < Math.abs(prev - s.weight) ? curr : prev
+        );
+        selectEl.value = s.weight;
+      }
+    }
+
+    /* ── Select a font for a slot ── */
+    function selectFont(slot, name) {
+      state[slot].name = name;
+      loadFont(name);
+
+      const font = getFont(name);
+      // Keep weight if available, else snap to first
+      if (font && !font.weights.includes(state[slot].weight)) {
+        state[slot].weight = font.weights[font.weights.length - 1 >= 1 ? font.weights.length - 1 : 0];
+      }
+
+      populateWeights(slot);
+      renderPreview();
+      renderSnippet();
+      renderList(slot);
+    }
+
+    /* ── Render a font list ── */
+    function renderList(slot, query = '') {
+      const listId = slot === 'fontA' ? 'listA' : 'listB';
+      const listEl = document.getElementById(listId);
+      const q = query.toLowerCase().trim();
+      const filtered = q
+        ? fontLibrary.filter(f => f.name.toLowerCase().includes(q))
+        : fontLibrary;
+
+      listEl.innerHTML = '';
+
+      if (filtered.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'no-results';
+        li.textContent = 'No fonts found';
+        listEl.appendChild(li);
+        return;
+      }
+
+      filtered.forEach(font => {
+        const li = document.createElement('li');
+        if (font.name === state[slot].name) li.classList.add('active');
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = font.name;
+
+        const catSpan = document.createElement('span');
+        catSpan.className = 'font-category';
+        catSpan.textContent = font.category;
+
+        li.appendChild(nameSpan);
+        li.appendChild(catSpan);
+        li.addEventListener('click', () => selectFont(slot, font.name));
+
+        listEl.appendChild(li);
+      });
+
+      // Scroll active item into view
+      const active = listEl.querySelector('.active');
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+
+    /* ── Render live preview ── */
+    function renderPreview() {
+      const headingEl = document.getElementById('previewHeading');
+      const bodyEl    = document.getElementById('previewBody');
+
+      const fontAObj = getFont(state.fontA.name);
+      const fontBObj = getFont(state.fontB.name);
+
+      headingEl.style.fontFamily  = `'${state.fontA.name}', ${getFallback(fontAObj?.category)}`;
+      headingEl.style.fontSize    = `${state.fontA.size}rem`;
+      headingEl.style.fontWeight  = state.fontA.weight;
+
+      bodyEl.style.fontFamily     = `'${state.fontB.name}', ${getFallback(fontBObj?.category)}`;
+      bodyEl.style.fontSize       = `${state.fontB.size}rem`;
+      bodyEl.style.fontWeight     = state.fontB.weight;
+
+      // Update meta
+      document.getElementById('metaA').innerHTML =
+        `<span class="preview-meta-name">${state.fontA.name}</span> — ${state.fontA.weight} — ${state.fontA.size}rem`;
+      document.getElementById('metaB').innerHTML =
+        `<span class="preview-meta-name">${state.fontB.name}</span> — ${state.fontB.weight} — ${state.fontB.size}rem`;
+    }
+
+    /* ── Build Google Fonts @import URL ── */
+    function buildImportUrl() {
+      const fontAObj = getFont(state.fontA.name);
+      const fontBObj = getFont(state.fontB.name);
+
+      const aWeights = fontAObj ? fontAObj.weights.join(';') : state.fontA.weight;
+      const bWeights = fontBObj ? fontBObj.weights.join(';') : state.fontB.weight;
+
+      const aParam = state.fontA.name.replace(/ /g, '+');
+      const bParam = state.fontB.name.replace(/ /g, '+');
+
+      return `https://fonts.googleapis.com/css2?family=${aParam}:wght@${aWeights}&family=${bParam}:wght@${bWeights}&display=swap`;
+    }
+
+    /* ── Render syntax-highlighted CSS snippet ── */
+    function renderSnippet() {
+      const url = buildImportUrl();
+      const fontAObj = getFont(state.fontA.name);
+      const fontBObj = getFont(state.fontB.name);
+      const fallbackA = getFallback(fontAObj?.category);
+      const fallbackB = getFallback(fontBObj?.category);
+
+      const p = cls => (str) => `<span class="${cls}">${str}</span>`;
+      const at   = p('token-at');
+      const sel  = p('token-selector');
+      const prop = p('token-prop');
+      const val  = p('token-value');
+      const pct  = p('token-punct');
+      const urlC = p('token-url');
+      const cmt  = p('token-comment');
+
+      const importLine =
+        `${at('@import')} ${pct('url(')}${urlC(`'${url}'`)}${pct(')')};`;
+
+      const headingBlock =
+        `${sel('.heading')} ${pct('{')}\n` +
+        `  ${prop('font-family')}: ${val(`'${state.fontA.name}'`)}, ${val(fallbackA)}${pct(';')}\n` +
+        `  ${prop('font-weight')}: ${val(state.fontA.weight)}${pct(';')}\n` +
+        `  ${prop('font-size')}:   ${val(state.fontA.size + 'rem')}${pct(';')}\n` +
+        `${pct('}')}`;
+
+      const bodyBlock =
+        `${sel('.body')} ${pct('{')}\n` +
+        `  ${prop('font-family')}: ${val(`'${state.fontB.name}'`)}, ${val(fallbackB)}${pct(';')}\n` +
+        `  ${prop('font-weight')}: ${val(state.fontB.weight)}${pct(';')}\n` +
+        `  ${prop('font-size')}:   ${val(state.fontB.size + 'rem')}${pct(';')}\n` +
+        `${pct('}')}`;
+
+      document.getElementById('snippetBox').innerHTML =
+        `${cmt('/* Google Fonts import */')}\n${importLine}\n\n${headingBlock}\n\n${bodyBlock}`;
+    }
+
+    /* ── Copy plain CSS to clipboard ── */
+    function copySnippet() {
+      const url = buildImportUrl();
+      const fontAObj = getFont(state.fontA.name);
+      const fontBObj = getFont(state.fontB.name);
+      const fallbackA = getFallback(fontAObj?.category);
+      const fallbackB = getFallback(fontBObj?.category);
+
+      const css =
+        `/* Google Fonts import */\n@import url('${url}');\n\n` +
+        `.heading {\n  font-family: '${state.fontA.name}', ${fallbackA};\n  font-weight: ${state.fontA.weight};\n  font-size: ${state.fontA.size}rem;\n}\n\n` +
+        `.body {\n  font-family: '${state.fontB.name}', ${fallbackB};\n  font-weight: ${state.fontB.weight};\n  font-size: ${state.fontB.size}rem;\n}`;
+
+      navigator.clipboard.writeText(css).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy CSS';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Wire up search inputs ── */
+    document.getElementById('searchA').addEventListener('input', e => {
+      renderList('fontA', e.target.value);
+    });
+    document.getElementById('searchB').addEventListener('input', e => {
+      renderList('fontB', e.target.value);
+    });
+
+    /* ── Wire up weight selects ── */
+    document.getElementById('weightA').addEventListener('change', e => {
+      state.fontA.weight = Number(e.target.value);
+      renderPreview();
+      renderSnippet();
+    });
+    document.getElementById('weightB').addEventListener('change', e => {
+      state.fontB.weight = Number(e.target.value);
+      renderPreview();
+      renderSnippet();
+    });
+
+    /* ── Wire up size sliders ── */
+    document.getElementById('sizeA').addEventListener('input', e => {
+      state.fontA.size = parseFloat(e.target.value);
+      document.getElementById('sizeAVal').textContent = state.fontA.size.toFixed(2) + 'rem';
+      renderPreview();
+      renderSnippet();
+    });
+    document.getElementById('sizeB').addEventListener('input', e => {
+      state.fontB.size = parseFloat(e.target.value);
+      document.getElementById('sizeBVal').textContent = state.fontB.size.toFixed(2) + 'rem';
+      renderPreview();
+      renderSnippet();
+    });
+
+    /* ── API key input: Enter triggers load ── */
+    document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') loadFontLibrary();
+    });
+
+    /* ── Init ── */
+    // Restore saved API key and auto-fetch
+    const savedKey = localStorage.getItem(LS_KEY);
+    if (savedKey) {
+      document.getElementById('apiKeyInput').value = savedKey;
+      loadFontLibrary();
+    }
+
+    loadFont(state.fontA.name);
+    loadFont(state.fontB.name);
+    populateWeights('fontA');
+    populateWeights('fontB');
+    renderList('fontA');
+    renderList('fontB');
+    renderPreview();
+    renderSnippet();
+  </script>
+</body>
+</html>
