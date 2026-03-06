@@ -10,11 +10,11 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**5 of 31 days complete** · Week 1 in progress
+**6 of 31 days complete** · Week 1 in progress
 
 ```
-Week 1 ████████████░░░░░░░░  5 / 7
-Total  ████░░░░░░░░░░░░░░░░  5 / 31
+Week 1 ███████████████░░░░░  6 / 7
+Total  ████░░░░░░░░░░░░░░░░  6 / 31
 ```
 
 ---
@@ -28,6 +28,7 @@ Total  ████░░░░░░░░░░░░░░░░  5 / 31
 | [03](./Day_Three/index.html) | **Accessible Palette Generator** | Enter a hex color to generate a 5-shade tonal palette (100–900) with WCAG AA/AAA contrast scores and one-click CSS variable export. |
 | [04](./Day_Four/index.html) | **CSS Variable Injector** | Edit the Golden Dark design tokens live with synchronized color pickers and hex inputs — the preview card updates in real time. Copy the full `:root { }` block for your own project. |
 | [05](./Day_Five/index.html) | **Google Fonts Pairer** | Search and select two Google Fonts (heading + body). Adjust weight and size with live controls, see them rendered side-by-side, then copy the ready-to-use `@import` CSS. Supports the Google Fonts API key to unlock all 1,500+ fonts. |
+| [06](./Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
 
 ---
 
@@ -39,7 +40,7 @@ Total  ████░░░░░░░░░░░░░░░░  5 / 31
 - [x] Day 03: Accessible Palette Generator
 - [x] Day 04: CSS Variable Injector
 - [x] Day 05: Google Fonts Pairer
-- [ ] Day 06: Glassmorphism UI Maker (Generates backdrop-filter snippets)
+- [x] Day 06: Glassmorphism UI Maker
 - [ ] Day 07: SVG Wave/Blob Generator (For section dividers)
 
 ### ✍️ Week 2: Content & Formatting

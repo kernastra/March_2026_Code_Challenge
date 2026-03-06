@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 06: Glassmorphism UI Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Body & Layout ── */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal Container ── */
+    .modal-container {
+      background: var(--modal-bg);
+      width: 90%;
+      max-width: 860px;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--modal-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Editor Layout ── */
+    .editor-layout {
+      display: flex;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    /* ── Controls Panel ── */
+    .controls-panel {
+      width: 280px;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Control Section ── */
+    .control-section {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .control-section:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── Control Row ── */
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .control-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .control-value {
+      font-size: 0.72rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      width: 40px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Range Slider ── */
+    .ctrl-range {
+      flex: 1;
+      min-width: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: var(--secondary-bg);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .ctrl-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .ctrl-range::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .ctrl-range::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    /* ── Color Picker Row ── */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .color-swatch-wrap {
+      position: relative;
+      width: 36px;
+      height: 28px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .color-swatch-wrap input[type="color"] {
+      position: absolute;
+      inset: 0;
+      width: 150%;
+      height: 150%;
+      top: -25%;
+      left: -25%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .swatch-preview {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .color-hex-display {
+      font-family: 'Outfit', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ── Presets ── */
+    .presets-section {
+      margin-bottom: 0.75rem;
+    }
+
+    .preset-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .preset-btn {
+      flex: 1;
+      background: var(--secondary-bg);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      padding: 0.45rem 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .preset-btn:hover {
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--accent-gold);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+
+    .preset-btn.active {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--accent-gold);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+
+    /* ── Preview Panel ── */
+    .preview-panel {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .preview-header .panel-title {
+      margin-bottom: 0;
+    }
+
+    /* ── Background Picker ── */
+    .bg-picker {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .bg-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      transition: outline-color 0.15s, transform 0.15s;
+    }
+
+    .bg-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .bg-swatch.active {
+      outline-color: var(--accent-gold);
+    }
+
+    .preview-stage.no-blobs .blob { display: none; }
+
+    .glass-card.dark-text .glass-title    { color: #1e2122; }
+    .glass-card.dark-text .glass-subtitle { color: rgba(30, 33, 34, 0.65); }
+    .glass-card.dark-text .glass-mock-btn { color: #1e2122; border-color: rgba(30, 33, 34, 0.4); background: rgba(30, 33, 34, 0.1); }
+
+    .preview-stage {
+      flex: 1;
+      min-height: 320px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #6c2bd9 0%, #c44593 40%, #f97316 75%, #fbbf24 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Background Blobs ── */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .blob-1 {
+      width: 180px;
+      height: 180px;
+      background: rgba(109, 40, 217, 0.8);
+      top: -40px;
+      left: -30px;
+    }
+
+    .blob-2 {
+      width: 140px;
+      height: 140px;
+      background: rgba(249, 115, 22, 0.8);
+      bottom: -30px;
+      right: -20px;
+    }
+
+    .blob-3 {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.3);
+      top: 30%;
+      left: 15%;
+    }
+
+    /* ── Glass Card ── */
+    .glass-card {
+      position: relative;
+      z-index: 1;
+      width: 210px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: center;
+    }
+
+    .glass-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .glass-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .glass-subtitle {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.4;
+    }
+
+    .glass-mock-btn {
+      margin-top: 0.25rem;
+      padding: 0.45rem 1.1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      margin: 2rem 0;
+    }
+
+    /* ── Output Section ── */
+    .output-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Snippet Box ── */
+    .snippet-box {
+      background: var(--bg-color);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      font-family: 'Outfit', monospace;
+      font-size: 0.8rem;
+      line-height: 1.85;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ── Syntax Highlight Tokens ── */
+    .token-selector { color: var(--accent-gold); }
+    .token-prop     { color: #74b9ff; }
+    .token-value    { color: #a29bfe; }
+    .token-punct    { color: var(--text-muted); opacity: 0.6; }
+    .token-comment  { color: rgba(255, 255, 255, 0.2); font-style: italic; }
+
+    /* ── Action Row ── */
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* ── Copy Button ── */
+    .copy-btn {
+      background: var(--accent-gold);
+      color: var(--bg-color);
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .copy-btn.copied {
+      background: #00b894;
+      color: #fff;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .editor-layout {
+        flex-direction: column;
+      }
+
+      .controls-panel {
+        width: 100%;
+      }
+
+      .preview-stage {
+        min-height: 260px;
+      }
+
+      .action-row {
+        flex-direction: column-reverse;
+      }
+
+      .copy-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <h1>Glassmorphism UI Maker</h1>
+    <p class="subtitle">Dial in your blur, tint, and border values — see the glass effect live, then copy the ready-to-use CSS.</p>
+
+    <div class="editor-layout">
+
+      <!-- ── Controls Panel ── -->
+      <div class="controls-panel">
+
+        <!-- Presets -->
+        <div class="presets-section">
+          <div class="panel-title">Presets</div>
+          <div class="preset-row">
+            <button class="preset-btn active" id="presetFrosted"   onclick="applyPreset('frosted')">Frosted</button>
+            <button class="preset-btn"         id="presetDark"     onclick="applyPreset('dark')">Dark Glass</button>
+            <button class="preset-btn"         id="presetColored"  onclick="applyPreset('colored')">Colored</button>
+          </div>
+        </div>
+
+        <!-- Blur -->
+        <div class="control-section">
+          <div class="panel-title">Blur</div>
+          <div class="control-row">
+            <span class="control-label">backdrop-filter</span>
+            <input type="range" class="ctrl-range" id="blurRange" min="0" max="30" step="1" value="12" oninput="onBlur(this.value)" />
+            <span class="control-value" id="blurVal">12px</span>
+          </div>
+        </div>
+
+        <!-- Tint -->
+        <div class="control-section">
+          <div class="panel-title">Background Tint</div>
+          <div class="control-row color-row">
+            <span class="control-label">Color</span>
+            <div class="color-swatch-wrap" id="tintSwatchWrap">
+              <div class="swatch-preview" id="tintSwatchPreview" style="background:#ffffff;"></div>
+              <input type="color" id="tintColorPicker" value="#ffffff" oninput="onTintColor(this.value)" />
+            </div>
+            <span class="color-hex-display" id="tintHexDisplay">#ffffff</span>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Opacity</span>
+            <input type="range" class="ctrl-range" id="tintOpacityRange" min="0" max="1" step="0.01" value="0.12" oninput="onTintOpacity(this.value)" />
+            <span class="control-value" id="tintOpacityVal">0.12</span>
+          </div>
+        </div>
+
+        <!-- Border -->
+        <div class="control-section">
+          <div class="panel-title">Border</div>
+          <div class="control-row">
+            <span class="control-label">Opacity</span>
+            <input type="range" class="ctrl-range" id="borderOpacityRange" min="0" max="1" step="0.01" value="0.25" oninput="onBorderOpacity(this.value)" />
+            <span class="control-value" id="borderOpacityVal">0.25</span>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Radius</span>
+            <input type="range" class="ctrl-range" id="borderRadiusRange" min="0" max="48" step="1" value="16" oninput="onBorderRadius(this.value)" />
+            <span class="control-value" id="borderRadiusVal">16px</span>
+          </div>
+        </div>
+
+        <!-- Shadow -->
+        <div class="control-section">
+          <div class="panel-title">Shadow</div>
+          <div class="control-row">
+            <span class="control-label">Strength</span>
+            <input type="range" class="ctrl-range" id="shadowRange" min="0" max="0.8" step="0.01" value="0.25" oninput="onShadow(this.value)" />
+            <span class="control-value" id="shadowVal">0.25</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Preview Panel ── -->
+      <div class="preview-panel">
+        <div class="preview-header">
+          <div class="panel-title">Live Preview</div>
+          <div class="bg-picker">
+            <button class="bg-swatch active" data-bg="sunset" style="background:linear-gradient(135deg,#6c2bd9,#c44593,#f97316)" onclick="selectBg('sunset')" title="Sunset"></button>
+            <button class="bg-swatch"        data-bg="ocean"  style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364)" onclick="selectBg('ocean')"  title="Ocean"></button>
+            <button class="bg-swatch"        data-bg="aurora" style="background:linear-gradient(135deg,#00c9a7,#00b4db,#0083b0)" onclick="selectBg('aurora')" title="Aurora"></button>
+            <button class="bg-swatch"        data-bg="dusk"   style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)" onclick="selectBg('dusk')"   title="Dusk"></button>
+            <button class="bg-swatch"        data-bg="rose"      style="background:linear-gradient(135deg,#f953c6,#b91d73,#ff6b6b)" onclick="selectBg('rose')"      title="Rose"></button>
+            <button class="bg-swatch"        data-bg="darkslate" style="background:#1e272e"                                          onclick="selectBg('darkslate')" title="Dark Slate (#1e272e)"></button>
+            <button class="bg-swatch"        data-bg="light"     style="background:#f5f6fa"                                          onclick="selectBg('light')"     title="Light (#f5f6fa)"></button>
+          </div>
+        </div>
+        <div class="preview-stage" id="previewStage">
+          <!-- decorative blobs -->
+          <div class="blob blob-1"></div>
+          <div class="blob blob-2"></div>
+          <div class="blob blob-3"></div>
+          <!-- glass card -->
+          <div class="glass-card" id="glassCard">
+            <div class="glass-icon">&#10024;</div>
+            <div class="glass-title">Glass Effect</div>
+            <div class="glass-subtitle">Adjust the controls to customize your glassmorphism style.</div>
+            <div class="glass-mock-btn">Learn More</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── CSS Output ── -->
+    <div class="output-section">
+      <div class="panel-title">CSS Output</div>
+      <div class="snippet-box" id="snippetBox"></div>
+      <div class="action-row">
+        <button class="copy-btn" id="copyBtn" onclick="copySnippet()">Copy CSS</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── Background Themes ── */
+    const BG_THEMES = {
+      sunset:  'linear-gradient(135deg, #6c2bd9 0%, #c44593 40%, #f97316 75%, #fbbf24 100%)',
+      ocean:   'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+      aurora:  'linear-gradient(135deg, #00c9a7 0%, #00b4db 50%, #0083b0 100%)',
+      dusk:    'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+      rose:    'linear-gradient(135deg, #f953c6 0%, #b91d73 50%, #ff6b6b 100%)',
+      darkslate: '#1e272e',
+      light:     '#f5f6fa',
+    };
+
+    let activeBg = 'sunset';
+
+    function selectBg(key) {
+      activeBg = key;
+      const stage = document.getElementById('previewStage');
+      const card  = document.getElementById('glassCard');
+      stage.style.background = BG_THEMES[key];
+      stage.classList.toggle('no-blobs', key === 'darkslate' || key === 'light');
+      card.classList.toggle('dark-text', key === 'light');
+      document.querySelectorAll('.bg-swatch').forEach(el => {
+        el.classList.toggle('active', el.dataset.bg === key);
+      });
+    }
+
+    /* ── State ── */
+    const state = {
+      blur:          12,
+      tintR:         255,
+      tintG:         255,
+      tintB:         255,
+      tintOpacity:   0.12,
+      borderOpacity: 0.25,
+      borderRadius:  16,
+      shadow:        0.25,
+    };
+
+    /* ── Presets ── */
+    const PRESETS = {
+      frosted: { blur:14, tintR:255, tintG:255, tintB:255, tintOpacity:0.12, borderOpacity:0.20, borderRadius:16, shadow:0.20 },
+      dark:    { blur:10, tintR:0,   tintG:0,   tintB:0,   tintOpacity:0.35, borderOpacity:0.15, borderRadius:20, shadow:0.40 },
+      colored: { blur:8,  tintR:124, tintG:58,  tintB:237, tintOpacity:0.25, borderOpacity:0.30, borderRadius:24, shadow:0.30 },
+    };
+
+    /* ── Helpers ── */
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    function hexToRgb(hex) {
+      hex = hex.replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      if (hex.length !== 6) return null;
+      const n = parseInt(hex, 16);
+      if (isNaN(n)) return null;
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+
+    function fmt2(n) { return parseFloat(n.toFixed(2)); }
+
+    /* ── Apply Preset ── */
+    function applyPreset(key) {
+      const p = PRESETS[key];
+      Object.assign(state, p);
+      syncInputs();
+      renderAll();
+
+      // Update active preset button
+      ['presetFrosted', 'presetDark', 'presetColored'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      const map = { frosted: 'presetFrosted', dark: 'presetDark', colored: 'presetColored' };
+      document.getElementById(map[key]).classList.add('active');
+    }
+
+    /* ── Sync inputs to state ── */
+    function syncInputs() {
+      document.getElementById('blurRange').value         = state.blur;
+      document.getElementById('blurVal').textContent     = state.blur + 'px';
+
+      const hex = rgbToHex(state.tintR, state.tintG, state.tintB);
+      document.getElementById('tintColorPicker').value   = hex;
+      document.getElementById('tintSwatchPreview').style.background = hex;
+      document.getElementById('tintHexDisplay').textContent = hex;
+
+      document.getElementById('tintOpacityRange').value  = state.tintOpacity;
+      document.getElementById('tintOpacityVal').textContent = fmt2(state.tintOpacity);
+
+      document.getElementById('borderOpacityRange').value = state.borderOpacity;
+      document.getElementById('borderOpacityVal').textContent = fmt2(state.borderOpacity);
+
+      document.getElementById('borderRadiusRange').value = state.borderRadius;
+      document.getElementById('borderRadiusVal').textContent = state.borderRadius + 'px';
+
+      document.getElementById('shadowRange').value       = state.shadow;
+      document.getElementById('shadowVal').textContent   = fmt2(state.shadow);
+    }
+
+    /* ── Event Handlers ── */
+    function onBlur(v) {
+      state.blur = parseInt(v, 10);
+      document.getElementById('blurVal').textContent = state.blur + 'px';
+      clearPreset();
+      renderAll();
+    }
+
+    function onTintColor(hex) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return;
+      state.tintR = rgb.r; state.tintG = rgb.g; state.tintB = rgb.b;
+      document.getElementById('tintSwatchPreview').style.background = hex;
+      document.getElementById('tintHexDisplay').textContent = hex;
+      clearPreset();
+      renderAll();
+    }
+
+    function onTintOpacity(v) {
+      state.tintOpacity = fmt2(parseFloat(v));
+      document.getElementById('tintOpacityVal').textContent = state.tintOpacity;
+      clearPreset();
+      renderAll();
+    }
+
+    function onBorderOpacity(v) {
+      state.borderOpacity = fmt2(parseFloat(v));
+      document.getElementById('borderOpacityVal').textContent = state.borderOpacity;
+      clearPreset();
+      renderAll();
+    }
+
+    function onBorderRadius(v) {
+      state.borderRadius = parseInt(v, 10);
+      document.getElementById('borderRadiusVal').textContent = state.borderRadius + 'px';
+      clearPreset();
+      renderAll();
+    }
+
+    function onShadow(v) {
+      state.shadow = fmt2(parseFloat(v));
+      document.getElementById('shadowVal').textContent = state.shadow;
+      clearPreset();
+      renderAll();
+    }
+
+    function clearPreset() {
+      ['presetFrosted', 'presetDark', 'presetColored'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+    }
+
+    /* ── Render Preview ── */
+    function renderPreview() {
+      const card = document.getElementById('glassCard');
+      const { blur, tintR, tintG, tintB, tintOpacity, borderOpacity, borderRadius, shadow } = state;
+      const blurVal   = `blur(${blur}px)`;
+      const bgVal     = `rgba(${tintR}, ${tintG}, ${tintB}, ${tintOpacity})`;
+      const borderVal = `1px solid rgba(255, 255, 255, ${borderOpacity})`;
+      const shadowVal = `0 8px 32px rgba(0, 0, 0, ${shadow})`;
+
+      card.style.backdropFilter         = blurVal;
+      card.style.webkitBackdropFilter   = blurVal;
+      card.style.background             = bgVal;
+      card.style.border                 = borderVal;
+      card.style.borderRadius           = borderRadius + 'px';
+      card.style.boxShadow              = shadowVal;
+    }
+
+    /* ── Render Snippet ── */
+    function renderSnippet() {
+      const { blur, tintR, tintG, tintB, tintOpacity, borderOpacity, borderRadius, shadow } = state;
+
+      const p = cls => str => `<span class="${cls}">${str}</span>`;
+      const sel  = p('token-selector');
+      const prop = p('token-prop');
+      const val  = p('token-value');
+      const pct  = p('token-punct');
+      const cmt  = p('token-comment');
+
+      const bgRgba     = `rgba(${tintR}, ${tintG}, ${tintB}, ${tintOpacity})`;
+      const borderRgba = `rgba(255, 255, 255, ${borderOpacity})`;
+      const shadowRgba = `rgba(0, 0, 0, ${shadow})`;
+
+      const lines = [
+        `${cmt('/* Glassmorphism */')}`,
+        `${sel('.glass')} ${pct('{')}`,
+        `  ${prop('backdrop-filter')}${pct(':')}         ${val(`blur(${blur}px)`)}${pct(';')}`,
+        `  ${prop('-webkit-backdrop-filter')}${pct(':')} ${val(`blur(${blur}px)`)}${pct(';')}`,
+        `  ${prop('background')}${pct(':')}              ${val(bgRgba)}${pct(';')}`,
+        `  ${prop('border')}${pct(':')}                  ${val(`1px solid ${borderRgba}`)}${pct(';')}`,
+        `  ${prop('border-radius')}${pct(':')}           ${val(`${borderRadius}px`)}${pct(';')}`,
+        `  ${prop('box-shadow')}${pct(':')}              ${val(`0 8px 32px ${shadowRgba}`)}${pct(';')}`,
+        `${pct('}')}`,
+      ];
+
+      document.getElementById('snippetBox').innerHTML = lines.join('\n');
+    }
+
+    /* ── Copy Snippet ── */
+    function copySnippet() {
+      const { blur, tintR, tintG, tintB, tintOpacity, borderOpacity, borderRadius, shadow } = state;
+      const bgRgba     = `rgba(${tintR}, ${tintG}, ${tintB}, ${tintOpacity})`;
+      const borderRgba = `rgba(255, 255, 255, ${borderOpacity})`;
+      const shadowRgba = `rgba(0, 0, 0, ${shadow})`;
+
+      const css =
+        `/* Glassmorphism */\n` +
+        `.glass {\n` +
+        `  backdrop-filter: blur(${blur}px);\n` +
+        `  -webkit-backdrop-filter: blur(${blur}px);\n` +
+        `  background: ${bgRgba};\n` +
+        `  border: 1px solid ${borderRgba};\n` +
+        `  border-radius: ${borderRadius}px;\n` +
+        `  box-shadow: 0 8px 32px ${shadowRgba};\n` +
+        `}`;
+
+      navigator.clipboard.writeText(css).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy CSS';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Render All ── */
+    function renderAll() {
+      renderPreview();
+      renderSnippet();
+    }
+
+    /* ── Init ── */
+    syncInputs();
+    renderAll();
+  </script>
+</body>
+</html>
