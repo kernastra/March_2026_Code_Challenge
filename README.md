@@ -10,11 +10,11 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**6 of 31 days complete** · Week 1 in progress
+**7 of 31 days complete** · Week 1 complete
 
 ```
-Week 1 ███████████████░░░░░  6 / 7
-Total  ████░░░░░░░░░░░░░░░░  6 / 31
+Week 1 █████████████████████  7 / 7
+Total  ████░░░░░░░░░░░░░░░░░  7 / 31
 ```
 
 ---
@@ -29,6 +29,7 @@ Total  ████░░░░░░░░░░░░░░░░  6 / 31
 | [04](./Day_Four/index.html) | **CSS Variable Injector** | Edit the Golden Dark design tokens live with synchronized color pickers and hex inputs — the preview card updates in real time. Copy the full `:root { }` block for your own project. |
 | [05](./Day_Five/index.html) | **Google Fonts Pairer** | Search and select two Google Fonts (heading + body). Adjust weight and size with live controls, see them rendered side-by-side, then copy the ready-to-use `@import` CSS. Supports the Google Fonts API key to unlock all 1,500+ fonts. |
 | [06](./Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
+| [07](./Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
 
 ---
 
@@ -41,7 +42,7 @@ Total  ████░░░░░░░░░░░░░░░░  6 / 31
 - [x] Day 04: CSS Variable Injector
 - [x] Day 05: Google Fonts Pairer
 - [x] Day 06: Glassmorphism UI Maker
-- [ ] Day 07: SVG Wave/Blob Generator (For section dividers)
+- [x] Day 07: SVG Wave/Blob Generator (For section dividers)
 
 ### ✍️ Week 2: Content & Formatting
 - [ ] Day 08: Markdown-to-HTML Live Preview (Side-by-side editor)
