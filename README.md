@@ -10,11 +10,12 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**7 of 31 days complete** · Week 1 complete
+**8 of 31 days complete** · Week 2 in progress
 
 ```
 Week 1 █████████████████████  7 / 7
-Total  ████░░░░░░░░░░░░░░░░░  7 / 31
+Week 2 ███░░░░░░░░░░░░░░░░░░  1 / 7
+Total  █████░░░░░░░░░░░░░░░░  8 / 31
 ```
 
 ---
@@ -30,6 +31,7 @@ Total  ████░░░░░░░░░░░░░░░░░  7 / 31
 | [05](./Day_Five/index.html) | **Google Fonts Pairer** | Search and select two Google Fonts (heading + body). Adjust weight and size with live controls, see them rendered side-by-side, then copy the ready-to-use `@import` CSS. Supports the Google Fonts API key to unlock all 1,500+ fonts. |
 | [06](./Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
 | [07](./Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
+| [08](./Day_Eight/index.html) | **Markdown Live Preview** | Write Markdown in the left panel and see it rendered as HTML in real time on the right. Supports headings, bold, italic, strikethrough, inline code, fenced code blocks, lists, blockquotes, links, and horizontal rules. Copy the generated HTML output with one click. |
 
 ---
 
@@ -45,7 +47,7 @@ Total  ████░░░░░░░░░░░░░░░░░  7 / 31
 - [x] Day 07: SVG Wave/Blob Generator (For section dividers)
 
 ### ✍️ Week 2: Content & Formatting
-- [ ] Day 08: Markdown-to-HTML Live Preview (Side-by-side editor)
+- [x] Day 08: Markdown-to-HTML Live Preview (Side-by-side editor)
 - [ ] Day 09: JSON Formatter & Validator (Prettify messy data strings)
 - [ ] Day 10: Lorem Ipsum "Dev Edition" (Generates tech-themed filler text)
 - [ ] Day 11: Case Converter (camelCase, snake_case, PascalCase, kebab-case)
