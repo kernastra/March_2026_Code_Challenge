@@ -10,12 +10,12 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**8 of 31 days complete** · Week 2 in progress
+**9 of 31 days complete** · Week 2 in progress
 
 ```
 Week 1 █████████████████████  7 / 7
-Week 2 ███░░░░░░░░░░░░░░░░░░  1 / 7
-Total  █████░░░░░░░░░░░░░░░░  8 / 31
+Week 2 ██████░░░░░░░░░░░░░░░  2 / 7
+Total  ██████░░░░░░░░░░░░░░░  9 / 31
 ```
 
 ---
@@ -32,6 +32,7 @@ Total  █████░░░░░░░░░░░░░░░░  8 / 31
 | [06](./Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
 | [07](./Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
 | [08](./Day_Eight/index.html) | **Markdown Live Preview** | Write Markdown in the left panel and see it rendered as HTML in real time on the right. Supports headings, bold, italic, strikethrough, inline code, fenced code blocks, lists, blockquotes, links, and horizontal rules. Copy the generated HTML output with one click. |
+| [09](./Day_Nine/index.html) | **JSON Formatter & Validator** | Paste messy or minified JSON to validate, prettify with syntax highlighting (keys, strings, numbers, booleans, null each color-coded), or minify. Toggle 2 or 4-space indentation, see key count/depth/size stats, and copy the formatted output with one click. |
 
 ---
 
@@ -48,7 +49,7 @@ Total  █████░░░░░░░░░░░░░░░░  8 / 31
 
 ### ✍️ Week 2: Content & Formatting
 - [x] Day 08: Markdown-to-HTML Live Preview (Side-by-side editor)
-- [ ] Day 09: JSON Formatter & Validator (Prettify messy data strings)
+- [x] Day 09: JSON Formatter & Validator (Prettify messy data strings)
 - [ ] Day 10: Lorem Ipsum "Dev Edition" (Generates tech-themed filler text)
 - [ ] Day 11: Case Converter (camelCase, snake_case, PascalCase, kebab-case)
 - [ ] Day 12: RegEx Playground (Test patterns against sample strings)
