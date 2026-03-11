@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 09 — JSON Formatter & Validator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:      #1e2122;
+      --modal-bg:      #2d3436;
+      --secondary-bg:  #3b4244;
+      --accent-gold:   #d4af37;
+      --text-main:     #ffffff;
+      --text-muted:    #dfe6e9;
+      --modal-shadow:  0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+      /* token colors */
+      --token-key:     #d4af37;
+      --token-string:  #55efc4;
+      --token-number:  #fd79a8;
+      --token-bool:    #74b9ff;
+      --token-null:    #b2bec3;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .modal-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Editor Layout ── */
+    .editor-layout {
+      display: flex;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .editor-panel,
+    .output-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ── Panel Labels ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Textarea ── */
+    #jsonInput {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.875rem;
+      width: 100%;
+      height: 320px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #jsonInput:focus {
+      border-color: var(--accent-gold);
+    }
+
+    #jsonInput.error {
+      border-color: #e17055;
+    }
+
+    /* ── Error Message ── */
+    .error-msg {
+      font-size: 0.78rem;
+      color: #e17055;
+      margin-top: 0.4rem;
+      min-height: 1.1rem;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* ── Action Row ── */
+    .action-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+      border: none;
+    }
+
+    .btn:hover { opacity: 0.88; }
+
+    .btn-gold {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+    }
+
+    .btn-copy {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      margin-left: auto;
+    }
+
+    .btn-copy.copied {
+      background: #00b894;
+      color: #fff;
+      border-color: #00b894;
+    }
+
+    /* ── Indent Toggle (segmented control) ── */
+    .indent-toggle {
+      display: flex;
+      background: var(--secondary-bg);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-left: auto;
+    }
+
+    .indent-btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .indent-btn.active {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    /* ── Output Box ── */
+    #jsonOutput {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      background: var(--secondary-bg);
+      border-radius: 8px;
+      padding: 0.875rem;
+      height: 320px;
+      overflow: auto;
+      white-space: pre;
+      color: var(--text-main);
+      flex: 1;
+    }
+
+    #jsonOutput.empty {
+      color: var(--text-muted);
+      font-style: italic;
+      white-space: pre-wrap;
+    }
+
+    /* ── Token Colors ── */
+    .token-key    { color: var(--token-key); }
+    .token-string { color: var(--token-string); }
+    .token-number { color: var(--token-number); }
+    .token-bool   { color: var(--token-bool); }
+    .token-null   { color: var(--token-null); }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      flex-wrap: wrap;
+    }
+
+    .stat-item span {
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    /* ── Output Header Row ── */
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .modal { padding: 1.5rem; }
+      .editor-layout { flex-direction: column; }
+      .indent-toggle { margin-left: 0; }
+      .btn-copy { margin-left: 0; }
+      .action-row { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>JSON Formatter &amp; Validator</h1>
+      <p>Paste messy or minified JSON — format, validate, and copy with syntax highlighting.</p>
+    </div>
+
+    <div class="editor-layout">
+      <!-- Left: Input -->
+      <div class="editor-panel">
+        <div class="panel-label">Input JSON</div>
+        <textarea
+          id="jsonInput"
+          placeholder='Paste JSON here… e.g. {"name":"Alice","age":30}'
+          spellcheck="false"
+        ></textarea>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="action-row">
+          <button class="btn btn-gold" onclick="format()">Format</button>
+          <button class="btn btn-ghost" onclick="minify()">Minify</button>
+          <div class="indent-toggle">
+            <button class="indent-btn active" id="indent2" onclick="setIndent(2)">2</button>
+            <button class="indent-btn" id="indent4" onclick="setIndent(4)">4</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Output -->
+      <div class="output-panel">
+        <div class="output-header">
+          <div class="panel-label" style="margin-bottom:0">Output</div>
+          <button class="btn btn-copy" id="copyBtn" onclick="copyOutput()">Copy JSON</button>
+        </div>
+        <div id="jsonOutput" class="empty">Formatted output will appear here…</div>
+        <div class="stats-bar" id="statsBar">
+          <div class="stat-item">Keys: <span id="statKeys">—</span></div>
+          <div class="stat-item">Depth: <span id="statDepth">—</span></div>
+          <div class="stat-item">Size: <span id="statSize">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── State ── */
+    let indent = 2;
+    let currentRaw = '';  // raw text in output (for copy)
+    let debounceTimer = null;
+
+    /* ── Indent Toggle ── */
+    function setIndent(n) {
+      indent = n;
+      document.getElementById('indent2').classList.toggle('active', n === 2);
+      document.getElementById('indent4').classList.toggle('active', n === 4);
+      // Re-format if there's valid content
+      if (currentRaw) format();
+    }
+
+    /* ── Format ── */
+    function format() {
+      const raw = document.getElementById('jsonInput').value.trim();
+      if (!raw) { clearOutput(); return; }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        showError(friendlyError(e, raw));
+        return;
+      }
+
+      clearError();
+      const pretty = JSON.stringify(parsed, null, indent);
+      currentRaw = pretty;
+      renderOutput(syntaxHighlight(escapeHtml(pretty)));
+      updateStats(parsed, pretty);
+    }
+
+    /* ── Minify ── */
+    function minify() {
+      const raw = document.getElementById('jsonInput').value.trim();
+      if (!raw) { clearOutput(); return; }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        showError(friendlyError(e, raw));
+        return;
+      }
+
+      clearError();
+      const minified = JSON.stringify(parsed);
+      currentRaw = minified;
+      renderOutput(escapeHtml(minified));
+      updateStats(parsed, minified);
+    }
+
+    /* ── Syntax Highlight ── */
+    function syntaxHighlight(str) {
+      // Tokenize: keys, strings, numbers, booleans, null
+      return str.replace(
+        /(&quot;(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\&])*&quot;(\s*:)?|true|false|null|-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/g,
+        (match) => {
+          if (match === 'true' || match === 'false') return `<span class="token-bool">${match}</span>`;
+          if (match === 'null') return `<span class="token-null">${match}</span>`;
+          if (match.endsWith(':')) {
+            return `<span class="token-key">${match.slice(0, -1)}</span>:`;
+          }
+          if (match.startsWith('&quot;')) return `<span class="token-string">${match}</span>`;
+          return `<span class="token-number">${match}</span>`;
+        }
+      );
+    }
+
+    /* ── HTML Escape (before syntax highlight) ── */
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ── Render Output ── */
+    function renderOutput(html) {
+      const el = document.getElementById('jsonOutput');
+      el.classList.remove('empty');
+      el.innerHTML = html;
+    }
+
+    /* ── Clear Output ── */
+    function clearOutput() {
+      currentRaw = '';
+      const el = document.getElementById('jsonOutput');
+      el.classList.add('empty');
+      el.textContent = 'Formatted output will appear here…';
+      clearError();
+      resetStats();
+    }
+
+    /* ── Error Handling ── */
+    function showError(msg) {
+      document.getElementById('jsonInput').classList.add('error');
+      const errEl = document.getElementById('errorMsg');
+      errEl.textContent = msg;
+      errEl.classList.add('visible');
+      // Clear output on error
+      const out = document.getElementById('jsonOutput');
+      out.classList.add('empty');
+      out.textContent = 'Formatted output will appear here…';
+      currentRaw = '';
+      resetStats();
+    }
+
+    function clearError() {
+      document.getElementById('jsonInput').classList.remove('error');
+      const errEl = document.getElementById('errorMsg');
+      errEl.textContent = '';
+      errEl.classList.remove('visible');
+    }
+
+    function friendlyError(e, raw) {
+      const msg = e.message || 'Invalid JSON';
+      // Try to extract position info from browser error message
+      const posMatch = msg.match(/position\s+(\d+)/i);
+      if (posMatch) {
+        const pos = parseInt(posMatch[1], 10);
+        const before = raw.substring(0, pos);
+        const line = (before.match(/\n/g) || []).length + 1;
+        const col = pos - before.lastIndexOf('\n');
+        return `SyntaxError: ${msg} (line ${line}, col ${col})`;
+      }
+      return `SyntaxError: ${msg}`;
+    }
+
+    /* ── Stats ── */
+    function countKeys(obj, depth) {
+      if (typeof obj !== 'object' || obj === null) return { keys: 0, depth };
+      const keys = Object.keys(obj);
+      let total = keys.length;
+      let maxDepth = depth;
+      for (const k of keys) {
+        const child = countKeys(obj[k], depth + 1);
+        total += child.keys;
+        if (child.depth > maxDepth) maxDepth = child.depth;
+      }
+      return { keys: total, depth: maxDepth };
+    }
+
+    function updateStats(parsed, raw) {
+      const { keys, depth } = countKeys(parsed, 1);
+      const size = new Blob([raw]).size;
+      const sizeStr = size >= 1024 ? (size / 1024).toFixed(1) + ' KB' : size + ' B';
+      document.getElementById('statKeys').textContent = keys;
+      document.getElementById('statDepth').textContent = depth;
+      document.getElementById('statSize').textContent = sizeStr;
+    }
+
+    function resetStats() {
+      document.getElementById('statKeys').textContent = '—';
+      document.getElementById('statDepth').textContent = '—';
+      document.getElementById('statSize').textContent = '—';
+    }
+
+    /* ── Copy ── */
+    function copyOutput() {
+      if (!currentRaw) return;
+      navigator.clipboard.writeText(currentRaw).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy JSON';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Live Input (debounced 300ms) ── */
+    document.getElementById('jsonInput').addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const val = document.getElementById('jsonInput').value.trim();
+      if (!val) { clearOutput(); return; }
+      debounceTimer = setTimeout(format, 300);
+    });
+
+    /* ── Ctrl+Enter to format ── */
+    document.getElementById('jsonInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        format();
+      }
+    });
+  </script>
+</body>
+</html>
