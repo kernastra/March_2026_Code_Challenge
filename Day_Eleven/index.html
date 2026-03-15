@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 11 — Case Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .modal-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Input Area ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    textarea {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.84rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.75rem;
+      width: 100%;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.6;
+    }
+
+    textarea:focus { border-color: var(--accent-gold); }
+    textarea::placeholder { color: #636e72; }
+
+    /* ── Error Message ── */
+    .error-msg {
+      font-size: 0.78rem;
+      color: #e17055;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      border: none;
+    }
+
+    .btn:hover { opacity: 0.88; }
+
+    .btn-gold {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      padding: 0.35rem 0.9rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-ghost.copied {
+      background: #00b894;
+      color: #fff;
+      border-color: #00b894;
+    }
+
+    /* ── Results ── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .results {
+      display: none;
+      margin-top: 1.5rem;
+    }
+
+    .results.visible {
+      display: block;
+      animation: fadeSlideIn 0.2s ease;
+    }
+
+    .results-header {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.875rem;
+    }
+
+    /* ── Result Row ── */
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .case-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .case-output {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.84rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      flex: 1;
+      overflow-x: auto;
+      white-space: nowrap;
+      min-width: 0;
+      transition: border-color 0.15s;
+    }
+
+    .case-output:hover { border-color: rgba(212, 175, 55, 0.3); }
+
+    /* ── Mobile ── */
+    @media (max-width: 540px) {
+      .modal { padding: 1.5rem; }
+      .result-row { flex-wrap: wrap; }
+      .case-label { min-width: 100%; margin-bottom: 0.25rem; }
+      .btn-ghost { flex-shrink: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Case Converter</h1>
+      <p>Convert any identifier or phrase to camelCase, PascalCase, snake_case, and kebab-case instantly.</p>
+    </div>
+
+    <div class="input-section">
+      <label class="panel-label" for="sourceInput">Input</label>
+      <textarea
+        id="sourceInput"
+        rows="3"
+        spellcheck="false"
+        placeholder="e.g. hello world, myVariable, MY_CONST, get-user-name, XMLParser…"
+      ></textarea>
+      <div class="error-msg" id="errorMsg">Please enter some text to convert.</div>
+      <div style="margin-top: 0.875rem;">
+        <button class="btn btn-gold" onclick="convert()">Convert</button>
+      </div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="results-header">Results</div>
+
+      <div class="result-row">
+        <span class="case-label">camelCase</span>
+        <span class="case-output" id="out-camel"></span>
+        <button class="btn btn-ghost" onclick="copyResult('out-camel', this)">Copy</button>
+      </div>
+
+      <div class="result-row">
+        <span class="case-label">PascalCase</span>
+        <span class="case-output" id="out-pascal"></span>
+        <button class="btn btn-ghost" onclick="copyResult('out-pascal', this)">Copy</button>
+      </div>
+
+      <div class="result-row">
+        <span class="case-label">snake_case</span>
+        <span class="case-output" id="out-snake"></span>
+        <button class="btn btn-ghost" onclick="copyResult('out-snake', this)">Copy</button>
+      </div>
+
+      <div class="result-row">
+        <span class="case-label">kebab-case</span>
+        <span class="case-output" id="out-kebab"></span>
+        <button class="btn btn-ghost" onclick="copyResult('out-kebab', this)">Copy</button>
+      </div>
+
+      <div class="result-row">
+        <span class="case-label">UPPER_SNAKE</span>
+        <span class="case-output" id="out-upper"></span>
+        <button class="btn btn-ghost" onclick="copyResult('out-upper', this)">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Tokenizer ── */
+    function tokenize(input) {
+      return input
+        // Split camelCase / PascalCase: "helloWorld" → "hello World"
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        // Split consecutive caps before a capital+lower: "XMLParser" → "XML Parser"
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+        // Replace non-alphanumeric characters with spaces
+        .replace(/[^a-zA-Z0-9]+/g, ' ')
+        .trim()
+        .toLowerCase()
+        .split(' ')
+        .filter(Boolean);
+    }
+
+    /* ── Converters ── */
+    function toCamel(words) {
+      return words[0] + words.slice(1).map(w => w[0].toUpperCase() + w.slice(1)).join('');
+    }
+
+    function toPascal(words) {
+      return words.map(w => w[0].toUpperCase() + w.slice(1)).join('');
+    }
+
+    function toSnake(words) {
+      return words.join('_');
+    }
+
+    function toKebab(words) {
+      return words.join('-');
+    }
+
+    function toUpperSnake(words) {
+      return words.join('_').toUpperCase();
+    }
+
+    /* ── Convert ── */
+    function convert() {
+      const raw = document.getElementById('sourceInput').value;
+
+      if (!raw.trim()) {
+        showError('Please enter some text to convert.');
+        return;
+      }
+      clearError();
+
+      const words = tokenize(raw);
+
+      if (words.length === 0) {
+        showError('No valid words found in the input.');
+        return;
+      }
+
+      document.getElementById('out-camel').textContent  = toCamel(words);
+      document.getElementById('out-pascal').textContent = toPascal(words);
+      document.getElementById('out-snake').textContent  = toSnake(words);
+      document.getElementById('out-kebab').textContent  = toKebab(words);
+      document.getElementById('out-upper').textContent  = toUpperSnake(words);
+
+      document.getElementById('results').classList.add('visible');
+    }
+
+    /* ── Copy ── */
+    function copyResult(id, btn) {
+      const text = document.getElementById(id).textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Error Helpers ── */
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function clearError() {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    /* ── Event Listeners ── */
+    // Ctrl/Cmd+Enter triggers convert (plain Enter inserts newline in textarea)
+    document.getElementById('sourceInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) convert();
+    });
+  </script>
+</body>
+</html>

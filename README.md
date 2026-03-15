@@ -10,12 +10,12 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**9 of 31 days complete** · Week 2 in progress
+**11 of 31 days complete** · Week 2 in progress
 
 ```
 Week 1 █████████████████████  7 / 7
-Week 2 ██████░░░░░░░░░░░░░░░  2 / 7
-Total  ██████░░░░░░░░░░░░░░░  9 / 31
+Week 2 ████████████░░░░░░░░░  4 / 7
+Total  ████████░░░░░░░░░░░░░  11 / 31
 ```
 
 ---
@@ -33,6 +33,8 @@ Total  ██████░░░░░░░░░░░░░░░  9 / 31
 | [07](./Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
 | [08](./Day_Eight/index.html) | **Markdown Live Preview** | Write Markdown in the left panel and see it rendered as HTML in real time on the right. Supports headings, bold, italic, strikethrough, inline code, fenced code blocks, lists, blockquotes, links, and horizontal rules. Copy the generated HTML output with one click. |
 | [09](./Day_Nine/index.html) | **JSON Formatter & Validator** | Paste messy or minified JSON to validate, prettify with syntax highlighting (keys, strings, numbers, booleans, null each color-coded), or minify. Toggle 2 or 4-space indentation, see key count/depth/size stats, and copy the formatted output with one click. |
+| [10](./Day_Ten/index.html) | **Lorem Ipsum Dev Edition** | Generate tech-themed filler text in Web Dev, DevOps, AI/ML, or Full Stack flavors. Control paragraph count, sentence length, and output format (prose, HTML `<p>` tags, or bullet list). Copy with one click. |
+| [11](./Day_Eleven/index.html) | **Case Converter** | Paste any text or identifier (camelCase, snake_case, kebab-case, PascalCase, UPPER_SNAKE, spaced phrases — anything) and instantly see all five case variants with one-click copy for each. |
 
 ---
 
@@ -50,8 +52,8 @@ Total  ██████░░░░░░░░░░░░░░░  9 / 31
 ### ✍️ Week 2: Content & Formatting
 - [x] Day 08: Markdown-to-HTML Live Preview (Side-by-side editor)
 - [x] Day 09: JSON Formatter & Validator (Prettify messy data strings)
-- [ ] Day 10: Lorem Ipsum "Dev Edition" (Generates tech-themed filler text)
-- [ ] Day 11: Case Converter (camelCase, snake_case, PascalCase, kebab-case)
+- [x] Day 10: Lorem Ipsum "Dev Edition" (Generates tech-themed filler text)
+- [x] Day 11: Case Converter (camelCase, snake_case, PascalCase, kebab-case)
 - [ ] Day 12: RegEx Playground (Test patterns against sample strings)
 - [ ] Day 13: Base64 Image Encoder (Convert small icons to strings)
 - [ ] Day 14: Word & Character Counter (With "Reading Time" estimator)

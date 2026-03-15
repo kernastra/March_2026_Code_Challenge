@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 10 — Lorem Ipsum Dev Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .modal-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      min-width: 72px;
+    }
+
+    /* ── Select ── */
+    select {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 400;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d4af37' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+      padding-right: 2rem;
+    }
+
+    select:focus { border-color: var(--accent-gold); }
+
+    /* ── Slider ── */
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--secondary-bg);
+      outline: none;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      border: none;
+      cursor: pointer;
+    }
+
+    .slider-value {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      min-width: 1.4rem;
+      text-align: center;
+    }
+
+    /* ── Segmented Controls ── */
+    .seg {
+      display: flex;
+      background: var(--secondary-bg);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .seg-btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.38rem 0.75rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .seg-btn.active {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    /* ── Generate Button ── */
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      border: none;
+    }
+
+    .btn:hover { opacity: 0.88; }
+
+    .btn-gold {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+    }
+
+    .btn-ghost.copied {
+      background: #00b894;
+      color: #fff;
+      border-color: #00b894;
+    }
+
+    .generate-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+    }
+
+    /* ── Output Area ── */
+    .output-wrap {
+      margin-top: 1.25rem;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    #output {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.875rem;
+      width: 100%;
+      height: 280px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #output:focus { border-color: var(--accent-gold); }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .stat-item span {
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 540px) {
+      .modal { padding: 1.5rem; }
+      .control-label { min-width: 60px; }
+      .control-row { gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Lorem Ipsum Dev Edition</h1>
+      <p>Tech-flavored filler text for mockups, demos, and prototype content.</p>
+    </div>
+
+    <div class="controls">
+      <!-- Theme -->
+      <div class="control-row">
+        <span class="control-label">Theme</span>
+        <select id="themeSelect">
+          <option value="webdev">Web Dev</option>
+          <option value="devops">DevOps</option>
+          <option value="aiml">AI / ML</option>
+          <option value="fullstack">Full Stack</option>
+        </select>
+      </div>
+
+      <!-- Paragraphs -->
+      <div class="control-row">
+        <span class="control-label">Paragraphs</span>
+        <div class="slider-wrap">
+          <input type="range" id="paraSlider" min="1" max="8" value="3" />
+          <span class="slider-value" id="paraVal">3</span>
+        </div>
+      </div>
+
+      <!-- Length -->
+      <div class="control-row">
+        <span class="control-label">Length</span>
+        <div class="seg" id="lengthSeg">
+          <button class="seg-btn" data-val="short" onclick="setLength('short')">Short</button>
+          <button class="seg-btn active" data-val="medium" onclick="setLength('medium')">Medium</button>
+          <button class="seg-btn" data-val="long" onclick="setLength('long')">Long</button>
+        </div>
+      </div>
+
+      <!-- Format -->
+      <div class="control-row">
+        <span class="control-label">Format</span>
+        <div class="seg" id="formatSeg">
+          <button class="seg-btn active" data-val="prose" onclick="setFormat('prose')">Prose</button>
+          <button class="seg-btn" data-val="html" onclick="setFormat('html')">HTML &lt;p&gt;</button>
+          <button class="seg-btn" data-val="bullets" onclick="setFormat('bullets')">Bullets</button>
+        </div>
+      </div>
+
+      <!-- Generate -->
+      <div class="generate-row">
+        <button class="btn btn-gold" onclick="generate()">Generate</button>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="output-wrap">
+      <div class="output-header">
+        <span class="panel-label">Output</span>
+        <button class="btn btn-ghost" id="copyBtn" onclick="copyOutput()">Copy</button>
+      </div>
+      <textarea id="output" readonly spellcheck="false"></textarea>
+      <div class="stats-bar">
+        <div class="stat-item">Words: <span id="statWords">—</span></div>
+        <div class="stat-item">Chars: <span id="statChars">—</span></div>
+        <div class="stat-item">Paragraphs: <span id="statParas">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Word Banks ── */
+    const BANKS = {
+      webdev: {
+        nouns: [
+          'component', 'endpoint', 'viewport', 'stylesheet', 'bundle',
+          'hook', 'schema', 'middleware', 'module', 'dependency',
+          'state', 'handler', 'template', 'lifecycle', 'callback',
+          'observer', 'directive', 'fragment', 'context', 'route',
+          'interface', 'abstraction', 'closure', 'prototype', 'event loop',
+          'shadow DOM', 'ref', 'hydration', 'slot', 'singleton'
+        ],
+        verb3s: [
+          'renders', 'hydrates', 'mounts', 'resolves', 'serializes',
+          'fetches', 'composes', 'patches', 'emits', 'subscribes',
+          'caches', 'defers', 'parses', 'injects', 'wraps',
+          'exposes', 'extends', 'overrides', 'delegates', 'transforms',
+          'throttles', 'debounces', 'memoizes', 'propagates', 'normalizes'
+        ],
+        adjs: [
+          'asynchronous', 'reactive', 'immutable', 'stateful', 'lazy',
+          'declarative', 'composable', 'idempotent', 'scoped', 'typed',
+          'memoized', 'normalized', 'paginated', 'nested', 'generic',
+          'polymorphic', 'observable', 'optimistic', 'tree-shaken', 'uncontrolled'
+        ]
+      },
+
+      devops: {
+        nouns: [
+          'container', 'pod', 'replica', 'ingress', 'pipeline',
+          'namespace', 'cluster', 'manifest', 'configmap', 'deployment',
+          'sidecar', 'rollout', 'node', 'service', 'volume',
+          'annotation', 'probe', 'chart', 'secret', 'daemon',
+          'orchestrator', 'registry', 'artifact', 'gateway', 'autoscaler'
+        ],
+        verb3s: [
+          'orchestrates', 'deploys', 'scales', 'provisions', 'monitors',
+          'schedules', 'reconciles', 'rotates', 'drains', 'evicts',
+          'exposes', 'terminates', 'replicates', 'autoscales', 'bootstraps',
+          'publishes', 'registers', 'triggers', 'patches', 'garbage-collects',
+          'health-checks', 'snapshots', 'migrates', 're-schedules', 'backfills'
+        ],
+        adjs: [
+          'declarative', 'idempotent', 'immutable', 'stateless', 'resilient',
+          'distributed', 'ephemeral', 'fault-tolerant', 'observable', 'scalable',
+          'containerized', 'rolling', 'canary', 'zero-downtime', 'self-healing',
+          'cloud-native', 'air-gapped', 'multi-tenant', 'blue-green', 'GitOps-driven'
+        ]
+      },
+
+      aiml: {
+        nouns: [
+          'model', 'token', 'embedding', 'gradient', 'checkpoint',
+          'dataset', 'transformer', 'prompt', 'weight', 'activation',
+          'vector', 'attention head', 'epoch', 'parameter', 'feature',
+          'loss function', 'context window', 'temperature', 'latency', 'inference run',
+          'fine-tune', 'reward signal', 'hallucination', 'adapter layer', 'tokenizer'
+        ],
+        verb3s: [
+          'trains', 'infers', 'quantizes', 'tokenizes', 'samples',
+          'evaluates', 'normalizes', 'augments', 'distills', 'encodes',
+          'decodes', 'regularizes', 'generates', 'hallucinates', 'fine-tunes',
+          'backpropagates', 'overfits', 'converges', 'extrapolates', 'aligns',
+          'retrieves', 'embeds', 'prunes', 're-ranks', 'calibrates'
+        ],
+        adjs: [
+          'pre-trained', 'generative', 'multimodal', 'stochastic', 'deterministic',
+          'sparse', 'dense', 'contextual', 'autoregressive', 'zero-shot',
+          'few-shot', 'fine-tuned', 'quantized', 'frozen', 'causal',
+          'retrieval-augmented', 'instruction-tuned', 'reward-shaped', 'LoRA-adapted', 'chain-of-thought'
+        ]
+      }
+    };
+
+    // Full Stack = merged banks
+    BANKS.fullstack = {
+      nouns:  [...BANKS.webdev.nouns,  ...BANKS.devops.nouns,  ...BANKS.aiml.nouns],
+      verb3s: [...BANKS.webdev.verb3s, ...BANKS.devops.verb3s, ...BANKS.aiml.verb3s],
+      adjs:   [...BANKS.webdev.adjs,   ...BANKS.devops.adjs,   ...BANKS.aiml.adjs]
+    };
+
+    /* ── Sentence Templates by Length ── */
+    const TEMPLATES = {
+      short: [
+        'The {noun} {verb3} the {noun}.',
+        'A {adj} {noun} {verb3}.',
+        'The {adj} {noun} {verb3} everything.',
+        'Every {noun} {verb3} at runtime.',
+        'The {noun} {verb3} a {adj} {noun}.'
+      ],
+      medium: [
+        'The {noun} {verb3} the {adj} {noun}.',
+        'When a {noun} {verb3}, the {adj} {noun} {verb3}.',
+        'A {adj} {noun} always {verb3} before the {noun} {verb3}.',
+        'The {adj} {noun} {verb3} every {noun} at build time.',
+        'Each {noun} {verb3} against the {adj} {noun}.',
+        'The {adj} {noun} {verb3} while the {noun} {verb3} in parallel.',
+        'Without a {adj} {noun}, the {noun} never {verb3}.',
+        'Every {adj} {noun} {verb3} the underlying {noun}.'
+      ],
+      long: [
+        'The {adj} {noun} {verb3} while the {noun} {verb3} in parallel, exposing a {adj} {noun}.',
+        'Without a {adj} {noun}, the {noun} never {verb3} and the {adj} {noun} {verb3}.',
+        'When the {adj} {noun} {verb3} against the {noun}, a new {adj} {noun} {verb3} downstream.',
+        'The {noun} {verb3} the {adj} {noun} only after the {adj} {noun} {verb3} correctly.',
+        'A {adj} {noun} that {verb3} will eventually cause the {noun} to {verb3} the {adj} {noun}.',
+        'Before the {noun} {verb3}, a {adj} {noun} {verb3} and the {adj} {noun} must {verb3}.',
+        'The {adj} {noun} {verb3} each {noun} lazily, ensuring the {adj} {noun} {verb3} last.',
+        'Once the {noun} {verb3} the {adj} {noun}, the {noun} {verb3} the {adj} {noun} in turn.'
+      ]
+    };
+
+    /* ── State ── */
+    let currentLength = 'medium';
+    let currentFormat = 'prose';
+
+    /* ── Helpers ── */
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function buildSentence(bank, length) {
+      const tmpl = pick(TEMPLATES[length]);
+      const result = tmpl
+        .replace(/\{noun\}/g, () => pick(bank.nouns))
+        .replace(/\{verb3\}/g, () => pick(bank.verb3s))
+        .replace(/\{adj\}/g, () => pick(bank.adjs));
+      return capitalize(result);
+    }
+
+    function buildParagraph(bank, length) {
+      const count = 4 + Math.floor(Math.random() * 3); // 4–6 sentences
+      return Array.from({ length: count }, () => buildSentence(bank, length)).join(' ');
+    }
+
+    /* ── Segmented Controls ── */
+    function setLength(val) {
+      currentLength = val;
+      document.querySelectorAll('#lengthSeg .seg-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+    }
+
+    function setFormat(val) {
+      currentFormat = val;
+      document.querySelectorAll('#formatSeg .seg-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+    }
+
+    /* ── Slider live label ── */
+    document.getElementById('paraSlider').addEventListener('input', function () {
+      document.getElementById('paraVal').textContent = this.value;
+    });
+
+    /* ── Generate ── */
+    function generate() {
+      const theme  = document.getElementById('themeSelect').value;
+      const count  = parseInt(document.getElementById('paraSlider').value, 10);
+      const bank   = BANKS[theme];
+
+      const paras = Array.from({ length: count }, () => buildParagraph(bank, currentLength));
+
+      let output;
+      if (currentFormat === 'html') {
+        output = paras.map(p => `<p>${p}</p>`).join('\n');
+      } else if (currentFormat === 'bullets') {
+        output = paras.map(p => `• ${p}`).join('\n\n');
+      } else {
+        output = paras.join('\n\n');
+      }
+
+      document.getElementById('output').value = output;
+      updateStats(output, count);
+    }
+
+    /* ── Stats ── */
+    function updateStats(text, paraCount) {
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      const chars = text.length;
+      document.getElementById('statWords').textContent = words.toLocaleString();
+      document.getElementById('statChars').textContent = chars.toLocaleString();
+      document.getElementById('statParas').textContent = paraCount;
+    }
+
+    /* ── Copy ── */
+    function copyOutput() {
+      const text = document.getElementById('output').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Auto-generate on load ── */
+    generate();
+  </script>
+</body>
+</html>
