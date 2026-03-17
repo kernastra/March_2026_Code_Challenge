@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 14 — Word & Character Counter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .modal-header { margin-bottom: 1.75rem; }
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Panel label ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.875rem;
+      width: 100%;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.7;
+      min-height: 160px;
+    }
+    textarea:focus { border-color: var(--accent-gold); }
+    textarea::placeholder { color: #636e72; }
+
+    /* ── Stats grid ── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .stat-card {
+      background: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      transition: background 0.15s;
+    }
+
+    .stat-card:hover { background: #454f52; }
+
+    .stat-card .stat-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .stat-card.reading-card {
+      grid-column: span 3;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .stat-card.reading-card .stat-value {
+      font-size: 1.3rem;
+    }
+
+    .reading-detail {
+      font-size: 0.78rem;
+      color: #636e72;
+      font-weight: 300;
+    }
+
+    /* ── Word frequency ── */
+    .freq-section {
+      margin-top: 1.25rem;
+      display: none;
+    }
+
+    .freq-section.visible {
+      display: block;
+      animation: fadeSlideIn 0.2s ease;
+    }
+
+    .freq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .freq-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .freq-word {
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      min-width: 100px;
+    }
+
+    .freq-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--secondary-bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .freq-bar {
+      height: 100%;
+      background: var(--accent-gold);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .freq-count {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      min-width: 2rem;
+      text-align: right;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .modal { padding: 1.5rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-card.reading-card { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Word & Character Counter</h1>
+      <p>Paste or type any text to get live word, character, sentence, and reading time stats.</p>
+    </div>
+
+    <span class="panel-label">Your Text</span>
+    <textarea id="textInput" placeholder="Paste or type your text here…" oninput="analyze()"></textarea>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="statWords">0</span>
+        <span class="stat-label">Words</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statChars">0</span>
+        <span class="stat-label">Characters</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statNoSpace">0</span>
+        <span class="stat-label">No Spaces</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statSentences">0</span>
+        <span class="stat-label">Sentences</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statParas">0</span>
+        <span class="stat-label">Paragraphs</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statLines">0</span>
+        <span class="stat-label">Lines</span>
+      </div>
+      <div class="stat-card reading-card">
+        <div>
+          <div class="stat-value" id="statReadTime">—</div>
+          <div class="stat-label">Reading Time</div>
+        </div>
+        <div class="reading-detail" id="readDetail">Avg. 238 words/min</div>
+      </div>
+    </div>
+
+    <div class="freq-section" id="freqSection">
+      <span class="panel-label">Top Words</span>
+      <div class="freq-list" id="freqList"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Analysis ── */
+    function analyze() {
+      const text = document.getElementById('textInput').value;
+
+      // Words
+      const words = text.trim() === '' ? [] : text.trim().split(/\s+/).filter(Boolean);
+      const wordCount = words.length;
+
+      // Characters
+      const charCount = text.length;
+      const noSpaceCount = text.replace(/\s/g, '').length;
+
+      // Sentences — split on . ! ? followed by whitespace or end
+      const sentences = text.trim() === '' ? 0
+        : (text.match(/[^.!?]*[.!?]+/g) || []).length || (text.trim().length > 0 ? 1 : 0);
+
+      // Paragraphs — blocks separated by blank lines
+      const parasRaw = text.trim().split(/\n\s*\n/).filter(p => p.trim().length > 0);
+      const paraCount = parasRaw.length;
+
+      // Lines
+      const lines = text.split('\n').length;
+
+      // Reading time (238 wpm avg)
+      const WPM = 238;
+      const minutes = wordCount / WPM;
+      let readTime;
+      let readDetail;
+      if (wordCount === 0) {
+        readTime = '—';
+        readDetail = 'Avg. 238 words/min';
+      } else if (minutes < 0.5) {
+        readTime = '< 1 min';
+        readDetail = `~${wordCount} words at 238 wpm`;
+      } else {
+        const rounded = Math.ceil(minutes * 2) / 2; // round to nearest 0.5
+        readTime = rounded === 1 ? '1 min' : rounded + ' min';
+        readDetail = `${wordCount.toLocaleString()} words at 238 wpm`;
+      }
+
+      // Update stats
+      document.getElementById('statWords').textContent = wordCount.toLocaleString();
+      document.getElementById('statChars').textContent = charCount.toLocaleString();
+      document.getElementById('statNoSpace').textContent = noSpaceCount.toLocaleString();
+      document.getElementById('statSentences').textContent = sentences.toLocaleString();
+      document.getElementById('statParas').textContent = paraCount.toLocaleString();
+      document.getElementById('statLines').textContent = lines.toLocaleString();
+      document.getElementById('statReadTime').textContent = readTime;
+      document.getElementById('readDetail').textContent = readDetail;
+
+      // Word frequency
+      updateFrequency(words);
+    }
+
+    function updateFrequency(words) {
+      const freqSection = document.getElementById('freqSection');
+      if (words.length < 3) {
+        freqSection.classList.remove('visible');
+        return;
+      }
+
+      // Build frequency map (normalize to lowercase, strip punctuation)
+      const freq = new Map();
+      const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','is','it','this','that','was','are','be','as','by']);
+      for (const w of words) {
+        const clean = w.toLowerCase().replace(/[^a-z0-9']/g, '');
+        if (!clean || stopWords.has(clean) || clean.length < 2) continue;
+        freq.set(clean, (freq.get(clean) || 0) + 1);
+      }
+
+      const sorted = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (sorted.length === 0) {
+        freqSection.classList.remove('visible');
+        return;
+      }
+
+      const maxCount = sorted[0][1];
+      const listHtml = sorted.map(([word, count]) => `
+        <div class="freq-item">
+          <span class="freq-word">${word}</span>
+          <div class="freq-bar-wrap">
+            <div class="freq-bar" style="width: ${(count / maxCount) * 100}%"></div>
+          </div>
+          <span class="freq-count">${count}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('freqList').innerHTML = listHtml;
+      freqSection.classList.add('visible');
+    }
+
+    /* ── Init ── */
+    const SAMPLE = `The quick brown fox jumps over the lazy dog. This is a sample text to demonstrate the word counter. You can replace it with your own content to see the live statistics update instantly.
+
+Paste any article, essay, or snippet here to count words, characters, sentences, paragraphs, and get an estimated reading time.`;
+
+    document.getElementById('textInput').value = SAMPLE;
+    analyze();
+  </script>
+</body>
+</html>

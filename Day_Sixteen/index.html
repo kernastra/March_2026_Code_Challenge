@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 16 — Meta Tag Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .modal-header { margin-bottom: 1.75rem; }
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Two-panel ── */
+    .editor-layout {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .left-panel {
+      flex: 0 0 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Labels ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Field group ── */
+    .field-group { display: flex; flex-direction: column; }
+
+    .field-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+    }
+
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .char-counter {
+      font-size: 0.7rem;
+      color: #636e72;
+      font-weight: 300;
+    }
+    .char-counter.warn  { color: #fdcb6e; }
+    .char-counter.over  { color: #e17055; font-weight: 600; }
+
+    /* ── Inputs ── */
+    input[type="text"],
+    input[type="url"],
+    textarea,
+    select {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus { border-color: var(--accent-gold); }
+    input::placeholder,
+    textarea::placeholder { color: #636e72; }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d4af37' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+      padding-right: 2rem;
+      cursor: pointer;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .field-row .field-group { flex: 1; }
+
+    /* ── Section divider ── */
+    .section-title {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #636e72;
+      margin-top: 0.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ── Output code block ── */
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .snippet-box {
+      background: #1a1d1e;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.76rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 340px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .snippet-box .token-tag   { color: #74b9ff; }
+    .snippet-box .token-attr  { color: #fd79a8; }
+    .snippet-box .token-val   { color: #55efc4; }
+    .snippet-box .token-cmt   { color: #636e72; font-style: italic; }
+
+    /* ── Social card preview ── */
+    .preview-card {
+      background: var(--secondary-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .preview-card-img {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #2d3436 60%, #3b4244);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #636e72;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .preview-card-img img.loaded { display: block; }
+
+    .preview-card-body {
+      padding: 0.875rem 1rem;
+    }
+
+    .preview-domain {
+      font-size: 0.7rem;
+      color: #636e72;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .preview-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Button ── */
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.35rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-ghost:hover { background: rgba(212,175,55,0.1); }
+    .btn-ghost.copied { background: #00b894; color: #fff; border-color: #00b894; }
+
+    /* ── Scrollbar ── */
+    .snippet-box::-webkit-scrollbar { width: 4px; }
+    .snippet-box::-webkit-scrollbar-track { background: transparent; }
+    .snippet-box::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 2px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .modal { padding: 1.5rem; }
+      .editor-layout { flex-direction: column; }
+      .left-panel { flex: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Meta Tag Generator</h1>
+      <p>Fill in the fields to generate SEO, OpenGraph, and Twitter Card meta tags instantly.</p>
+    </div>
+
+    <div class="editor-layout">
+      <!-- ── Left: form ── -->
+      <div class="left-panel">
+
+        <div class="section-title">SEO</div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <span class="field-label">Title</span>
+            <span class="char-counter" id="titleCounter">0 / 60</span>
+          </div>
+          <input type="text" id="fTitle" placeholder="My Awesome Page" maxlength="120" oninput="update()" />
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <span class="field-label">Description</span>
+            <span class="char-counter" id="descCounter">0 / 160</span>
+          </div>
+          <textarea id="fDesc" rows="3" placeholder="A brief description of your page…" maxlength="300" oninput="update()"></textarea>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <span class="field-label">Canonical URL</span>
+          </div>
+          <input type="url" id="fUrl" placeholder="https://example.com/page" oninput="update()" />
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <span class="field-label">Author</span>
+          </div>
+          <input type="text" id="fAuthor" placeholder="Jane Smith" oninput="update()" />
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row">
+            <span class="field-label">Keywords</span>
+          </div>
+          <input type="text" id="fKeywords" placeholder="keyword1, keyword2, keyword3" oninput="update()" />
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <div class="field-label-row"><span class="field-label">Robots</span></div>
+            <select id="fRobots" onchange="update()">
+              <option value="index, follow">index, follow</option>
+              <option value="noindex, follow">noindex, follow</option>
+              <option value="index, nofollow">index, nofollow</option>
+              <option value="noindex, nofollow">noindex, nofollow</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label-row"><span class="field-label">OG Type</span></div>
+            <select id="fOgType" onchange="update()">
+              <option value="website">website</option>
+              <option value="article">article</option>
+              <option value="product">product</option>
+              <option value="profile">profile</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title">OpenGraph / Twitter</div>
+
+        <div class="field-group">
+          <div class="field-label-row"><span class="field-label">Image URL</span></div>
+          <input type="url" id="fImage" placeholder="https://example.com/og-image.jpg" oninput="update()" />
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row"><span class="field-label">Twitter Card</span></div>
+          <select id="fTwitterCard" onchange="update()">
+            <option value="summary_large_image">summary_large_image</option>
+            <option value="summary">summary</option>
+            <option value="app">app</option>
+            <option value="player">player</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label-row"><span class="field-label">Twitter Site (@handle)</span></div>
+          <input type="text" id="fTwitterSite" placeholder="@yourhandle" oninput="update()" />
+        </div>
+
+      </div>
+
+      <!-- ── Right: output ── -->
+      <div class="right-panel">
+
+        <!-- Social card preview -->
+        <div>
+          <span class="panel-label">Social Preview</span>
+          <div class="preview-card">
+            <div class="preview-card-img" id="previewImgWrap">
+              <span id="previewImgIcon">🖼️</span>
+              <img id="previewImg" src="" alt="" onload="this.classList.add('loaded'); document.getElementById('previewImgIcon').style.display='none'" onerror="this.classList.remove('loaded'); document.getElementById('previewImgIcon').style.display=''" />
+            </div>
+            <div class="preview-card-body">
+              <div class="preview-domain" id="previewDomain">example.com</div>
+              <div class="preview-title" id="previewTitle">Page Title</div>
+              <div class="preview-desc" id="previewDesc">Page description will appear here.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tag output -->
+        <div style="display:flex; flex-direction:column; flex:1;">
+          <div class="output-header">
+            <span class="panel-label" style="margin-bottom:0">Generated Tags</span>
+            <button class="btn-ghost" id="copyBtn" onclick="copyTags()">Copy All</button>
+          </div>
+          <pre class="snippet-box" id="snippetBox"><!-- Fill in the form to generate meta tags --></pre>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Helpers ── */
+    function escAttr(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function getDomain(url) {
+      try { return new URL(url).hostname; } catch { return url || 'example.com'; }
+    }
+
+    function raw(str) { return str.trim(); }
+
+    /* ── Character counter ── */
+    function updateCounter(id, val, limit) {
+      const el = document.getElementById(id);
+      el.textContent = val.length + ' / ' + limit;
+      el.className = 'char-counter';
+      if (val.length > limit) el.classList.add('over');
+      else if (val.length > limit * 0.8) el.classList.add('warn');
+    }
+
+    /* ── Build tags ── */
+    function buildTags() {
+      const title      = raw(document.getElementById('fTitle').value);
+      const desc       = raw(document.getElementById('fDesc').value);
+      const url        = raw(document.getElementById('fUrl').value);
+      const author     = raw(document.getElementById('fAuthor').value);
+      const keywords   = raw(document.getElementById('fKeywords').value);
+      const robots     = document.getElementById('fRobots').value;
+      const ogType     = document.getElementById('fOgType').value;
+      const image      = raw(document.getElementById('fImage').value);
+      const twitterCard= document.getElementById('fTwitterCard').value;
+      const twitterSite= raw(document.getElementById('fTwitterSite').value);
+
+      const lines = [];
+
+      // SEO
+      lines.push('<!-- SEO -->');
+      if (title)    lines.push(`<meta name="title" content="${escAttr(title)}">`);
+      if (desc)     lines.push(`<meta name="description" content="${escAttr(desc)}">`);
+      if (keywords) lines.push(`<meta name="keywords" content="${escAttr(keywords)}">`);
+      if (author)   lines.push(`<meta name="author" content="${escAttr(author)}">`);
+      lines.push(`<meta name="robots" content="${escAttr(robots)}">`);
+      if (url)      lines.push(`<link rel="canonical" href="${escAttr(url)}">`);
+
+      // Open Graph
+      lines.push('');
+      lines.push('<!-- Open Graph / Facebook -->');
+      lines.push(`<meta property="og:type" content="${escAttr(ogType)}">`);
+      if (url)   lines.push(`<meta property="og:url" content="${escAttr(url)}">`);
+      if (title) lines.push(`<meta property="og:title" content="${escAttr(title)}">`);
+      if (desc)  lines.push(`<meta property="og:description" content="${escAttr(desc)}">`);
+      if (image) lines.push(`<meta property="og:image" content="${escAttr(image)}">`);
+
+      // Twitter
+      lines.push('');
+      lines.push('<!-- Twitter -->');
+      lines.push(`<meta property="twitter:card" content="${escAttr(twitterCard)}">`);
+      if (url)         lines.push(`<meta property="twitter:url" content="${escAttr(url)}">`);
+      if (title)       lines.push(`<meta property="twitter:title" content="${escAttr(title)}">`);
+      if (desc)        lines.push(`<meta property="twitter:description" content="${escAttr(desc)}">`);
+      if (image)       lines.push(`<meta property="twitter:image" content="${escAttr(image)}">`);
+      if (twitterSite) lines.push(`<meta property="twitter:site" content="${escAttr(twitterSite)}">`);
+
+      return lines.join('\n');
+    }
+
+    /* ── Syntax highlight raw string ── */
+    function highlight(code) {
+      return code
+        .replace(/(&lt;!--.*?--&gt;)/g, '<span class="token-cmt">$1</span>')
+        .replace(/(&lt;\/?[\w:]+)/g, '<span class="token-tag">$1</span>')
+        .replace(/(\w+(?:-\w+)*)=/g, '<span class="token-attr">$1</span>=')
+        .replace(/"([^"]*)"/g, '"<span class="token-val">$1</span>"')
+        .replace(/(&gt;)/g, '<span class="token-tag">$1</span>');
+    }
+
+    /* ── Update ── */
+    function update() {
+      const title = document.getElementById('fTitle').value;
+      const desc  = document.getElementById('fDesc').value;
+      const url   = document.getElementById('fUrl').value;
+      const image = document.getElementById('fImage').value;
+
+      updateCounter('titleCounter', title, 60);
+      updateCounter('descCounter', desc, 160);
+
+      // Social preview
+      document.getElementById('previewTitle').textContent = title || 'Page Title';
+      document.getElementById('previewDesc').textContent  = desc  || 'Page description will appear here.';
+      document.getElementById('previewDomain').textContent = url ? getDomain(url) : 'example.com';
+
+      const previewImg = document.getElementById('previewImg');
+      if (image) {
+        previewImg.src = image;
+      } else {
+        previewImg.src = '';
+        previewImg.classList.remove('loaded');
+        document.getElementById('previewImgIcon').style.display = '';
+      }
+
+      // Code output
+      const rawCode = buildTags();
+      const escaped = rawCode
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      document.getElementById('snippetBox').innerHTML = highlight(escaped);
+    }
+
+    /* ── Copy ── */
+    function copyTags() {
+      const code = buildTags()
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy All';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Init ── */
+    document.getElementById('fTitle').value = 'My Awesome Page';
+    document.getElementById('fDesc').value  = 'A brief description of this page for search engines and social media previews.';
+    document.getElementById('fUrl').value   = 'https://example.com/page';
+    update();
+  </script>
+</body>
+</html>

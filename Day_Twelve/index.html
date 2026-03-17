@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 12 — RegEx Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 860px;
+    }
+
+    .modal-header { margin-bottom: 1.75rem; }
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Two-panel layout ── */
+    .editor-layout {
+      display: flex;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .left-panel, .right-panel {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Labels ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Pattern input row ── */
+    .pattern-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--secondary-bg);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      transition: border-color 0.15s;
+    }
+    .pattern-row:focus-within { border-color: var(--accent-gold); }
+
+    .pattern-slash {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      color: var(--accent-gold);
+      user-select: none;
+      line-height: 1;
+    }
+
+    #patternInput {
+      flex: 1;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      background: transparent;
+      color: var(--text-main);
+      border: none;
+      outline: none;
+      min-width: 0;
+    }
+
+    #patternInput::placeholder { color: #636e72; }
+
+    .flags-display {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--accent-gold);
+      min-width: 2ch;
+      cursor: default;
+    }
+
+    /* ── Flags checkboxes ── */
+    .flags-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .flag-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .flag-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--text-muted);
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .flag-item input[type="checkbox"]:checked {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+    }
+
+    .flag-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #1e2122;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .flag-item label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .flag-item label span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      color: #636e72;
+      margin-left: 0.2rem;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.84rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.75rem;
+      width: 100%;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.6;
+    }
+    textarea:focus { border-color: var(--accent-gold); }
+    textarea::placeholder { color: #636e72; }
+
+    /* ── Error ── */
+    .error-msg {
+      font-size: 0.78rem;
+      color: #e17055;
+      margin-top: -0.5rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Right panel: match preview ── */
+    .match-preview-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .match-preview {
+      flex: 1;
+      min-height: 120px;
+      background: var(--secondary-bg);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.84rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+    }
+
+    .match-preview mark {
+      background: rgba(212, 175, 55, 0.35);
+      color: var(--accent-gold);
+      border-radius: 3px;
+      padding: 0 1px;
+      font-weight: 600;
+    }
+
+    .match-preview .placeholder-txt {
+      color: #636e72;
+      font-style: italic;
+    }
+
+    /* ── Match stats ── */
+    .match-stats {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .match-stats .stat-val {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    /* ── Match list ── */
+    .match-list-wrap {
+      margin-top: 0.75rem;
+    }
+
+    .match-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .match-item {
+      background: var(--secondary-bg);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      border-left: 2px solid var(--accent-gold);
+    }
+
+    .match-idx {
+      color: #636e72;
+      min-width: 2.5rem;
+      font-size: 0.7rem;
+    }
+
+    .match-val {
+      color: var(--accent-gold);
+      flex: 1;
+      word-break: break-all;
+    }
+
+    .match-groups {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-style: italic;
+    }
+
+    .no-match-msg {
+      font-size: 0.8rem;
+      color: #636e72;
+      font-style: italic;
+      padding: 0.5rem 0;
+    }
+
+    /* ── Scrollbar ── */
+    .match-list::-webkit-scrollbar,
+    .match-preview::-webkit-scrollbar { width: 4px; }
+    .match-list::-webkit-scrollbar-track,
+    .match-preview::-webkit-scrollbar-track { background: transparent; }
+    .match-list::-webkit-scrollbar-thumb,
+    .match-preview::-webkit-scrollbar-thumb {
+      background: var(--accent-gold);
+      border-radius: 2px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .modal { padding: 1.5rem; }
+      .editor-layout { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>RegEx Playground</h1>
+      <p>Test regular expression patterns against sample strings with live match highlighting.</p>
+    </div>
+
+    <div class="editor-layout">
+      <!-- ── Left panel ── -->
+      <div class="left-panel">
+        <div>
+          <span class="panel-label">Pattern</span>
+          <div class="pattern-row">
+            <span class="pattern-slash">/</span>
+            <input type="text" id="patternInput" placeholder="e.g. \b\w{4}\b" autocomplete="off" spellcheck="false" />
+            <span class="pattern-slash">/</span>
+            <span class="flags-display" id="flagsDisplay">g</span>
+          </div>
+          <div class="error-msg" id="errorMsg"></div>
+        </div>
+
+        <div>
+          <span class="panel-label">Flags</span>
+          <div class="flags-row">
+            <label class="flag-item">
+              <input type="checkbox" id="flagG" checked onchange="updateFlags()" />
+              <label for="flagG">g <span>global</span></label>
+            </label>
+            <label class="flag-item">
+              <input type="checkbox" id="flagI" onchange="updateFlags()" />
+              <label for="flagI">i <span>case-insensitive</span></label>
+            </label>
+            <label class="flag-item">
+              <input type="checkbox" id="flagM" onchange="updateFlags()" />
+              <label for="flagM">m <span>multiline</span></label>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <span class="panel-label">Test String</span>
+          <textarea id="testInput" rows="8" spellcheck="false" placeholder="Paste or type your test string here…">The quick brown fox jumps over the lazy dog.
+Pack my box with five dozen liquor jugs.
+How vexingly quick daft zebras jump!</textarea>
+        </div>
+      </div>
+
+      <!-- ── Right panel ── -->
+      <div class="right-panel">
+        <div class="match-preview-wrap">
+          <span class="panel-label">Match Preview</span>
+          <div class="match-preview" id="matchPreview">
+            <span class="placeholder-txt">Enter a pattern to see matches highlighted.</span>
+          </div>
+          <div class="match-stats" id="matchStats" style="display:none">
+            <span>Matches: <span class="stat-val" id="statCount">0</span></span>
+            <span>Groups: <span class="stat-val" id="statGroups">0</span></span>
+          </div>
+        </div>
+
+        <div class="match-list-wrap">
+          <span class="panel-label">Match List</span>
+          <div class="match-list" id="matchList">
+            <div class="no-match-msg">No matches yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── State ── */
+    let debounceTimer = null;
+
+    /* ── Helpers ── */
+    function escHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function clearError() {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    function updateFlags() {
+      const g = document.getElementById('flagG').checked ? 'g' : '';
+      const i = document.getElementById('flagI').checked ? 'i' : '';
+      const m = document.getElementById('flagM').checked ? 'm' : '';
+      document.getElementById('flagsDisplay').textContent = (g + i + m) || '—';
+      run();
+    }
+
+    function getFlags() {
+      const g = document.getElementById('flagG').checked ? 'g' : '';
+      const i = document.getElementById('flagI').checked ? 'i' : '';
+      const m = document.getElementById('flagM').checked ? 'm' : '';
+      return g + i + m;
+    }
+
+    /* ── Main logic ── */
+    function run() {
+      clearError();
+      const pattern = document.getElementById('patternInput').value;
+      const testStr = document.getElementById('testInput').value;
+      const preview = document.getElementById('matchPreview');
+      const matchList = document.getElementById('matchList');
+      const statsEl = document.getElementById('matchStats');
+
+      if (!pattern) {
+        preview.innerHTML = '<span class="placeholder-txt">Enter a pattern to see matches highlighted.</span>';
+        matchList.innerHTML = '<div class="no-match-msg">No matches yet.</div>';
+        statsEl.style.display = 'none';
+        return;
+      }
+
+      let regex;
+      try {
+        regex = new RegExp(pattern, getFlags());
+      } catch (e) {
+        showError('Invalid pattern: ' + e.message);
+        preview.innerHTML = '<span class="placeholder-txt">Fix the pattern to see matches.</span>';
+        matchList.innerHTML = '<div class="no-match-msg">Invalid pattern.</div>';
+        statsEl.style.display = 'none';
+        return;
+      }
+
+      // Collect all matches
+      const matches = [];
+      const flags = getFlags();
+      if (flags.includes('g')) {
+        let m;
+        const globalRe = new RegExp(pattern, flags);
+        while ((m = globalRe.exec(testStr)) !== null) {
+          matches.push({ index: m.index, value: m[0], groups: Array.from(m).slice(1) });
+          if (m[0].length === 0) globalRe.lastIndex++; // prevent infinite loop on zero-length match
+        }
+      } else {
+        const m = regex.exec(testStr);
+        if (m) matches.push({ index: m.index, value: m[0], groups: Array.from(m).slice(1) });
+      }
+
+      // Build highlighted preview
+      if (matches.length === 0) {
+        preview.textContent = testStr;
+        matchList.innerHTML = '<div class="no-match-msg">No matches found.</div>';
+        statsEl.style.display = 'none';
+        return;
+      }
+
+      let highlighted = '';
+      let last = 0;
+      for (const m of matches) {
+        highlighted += escHtml(testStr.slice(last, m.index));
+        highlighted += '<mark>' + escHtml(m.value) + '</mark>';
+        last = m.index + m.value.length;
+      }
+      highlighted += escHtml(testStr.slice(last));
+      preview.innerHTML = highlighted;
+
+      // Stats
+      const totalGroups = matches.reduce((acc, m) => acc + m.groups.filter(g => g !== undefined).length, 0);
+      document.getElementById('statCount').textContent = matches.length;
+      document.getElementById('statGroups').textContent = totalGroups;
+      statsEl.style.display = 'flex';
+
+      // Match list
+      const listHtml = matches.map((m, i) => {
+        const groupStr = m.groups.filter(g => g !== undefined).length > 0
+          ? ' [' + m.groups.map((g, gi) => `$${gi + 1}: "${g ?? 'undefined'}"`).join(', ') + ']'
+          : '';
+        return `<div class="match-item">
+          <span class="match-idx">#${i + 1} @${m.index}</span>
+          <span class="match-val">${escHtml(m.value)}</span>
+          ${groupStr ? `<span class="match-groups">${escHtml(groupStr)}</span>` : ''}
+        </div>`;
+      }).join('');
+      matchList.innerHTML = listHtml;
+    }
+
+    function scheduleRun() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(run, 200);
+    }
+
+    /* ── Event listeners ── */
+    document.getElementById('patternInput').addEventListener('input', scheduleRun);
+    document.getElementById('testInput').addEventListener('input', scheduleRun);
+
+    /* ── Init ── */
+    run();
+  </script>
+</body>
+</html>

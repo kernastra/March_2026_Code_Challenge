@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 13 — Base64 Image Encoder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .modal-header { margin-bottom: 1.75rem; }
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Panel label ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--accent-gold);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      background: rgba(212, 175, 55, 0.07);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      line-height: 1;
+    }
+
+    .drop-zone p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .drop-zone strong {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .drop-zone .drop-hint {
+      font-size: 0.75rem;
+      color: #636e72;
+      margin-top: 0.35rem;
+    }
+
+    /* ── Error ── */
+    .error-msg {
+      font-size: 0.78rem;
+      color: #e17055;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Results ── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .results {
+      display: none;
+      margin-top: 1.5rem;
+    }
+    .results.visible {
+      display: block;
+      animation: fadeSlideIn 0.2s ease;
+    }
+
+    /* ── Image preview ── */
+    .preview-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .img-thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .img-meta { flex: 1; min-width: 0; }
+    .img-name {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .stat-item span {
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    /* ── Mode toggle ── */
+    .mode-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .seg {
+      display: flex;
+      background: var(--secondary-bg);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .seg-btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.38rem 0.75rem;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .seg-btn.active {
+      background: var(--accent-gold);
+      color: #1e2122;
+    }
+
+    /* ── Output textarea ── */
+    textarea {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.78rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.75rem;
+      width: 100%;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+    textarea:focus { border-color: var(--accent-gold); }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      border: none;
+    }
+    .btn:hover { opacity: 0.88; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      padding: 0.35rem 0.9rem;
+      font-size: 0.78rem;
+    }
+    .btn-ghost:hover { background: rgba(212,175,55,0.1); opacity: 1; }
+    .btn-ghost.copied {
+      background: #00b894;
+      color: #fff;
+      border-color: #00b894;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Scrollbar ── */
+    textarea::-webkit-scrollbar { width: 4px; }
+    textarea::-webkit-scrollbar-track { background: transparent; }
+    textarea::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 2px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .modal { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Base64 Image Encoder</h1>
+      <p>Drop an image to convert it to a Base64 data URI for embedding in HTML or CSS.</p>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" />
+      <div class="drop-icon">🖼️</div>
+      <p><strong>Drop an image here</strong> or click to browse</p>
+      <p class="drop-hint">PNG, JPG, GIF, SVG, WebP accepted</p>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="results" id="results">
+      <!-- Preview -->
+      <div class="preview-wrap">
+        <img class="img-thumb" id="imgThumb" src="" alt="preview" />
+        <div class="img-meta">
+          <div class="img-name" id="imgName">image.png</div>
+          <div class="stats-bar">
+            <div class="stat-item">Type: <span id="statType">—</span></div>
+            <div class="stat-item">Original: <span id="statOrig">—</span></div>
+            <div class="stat-item">Encoded: <span id="statEnc">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output mode -->
+      <div class="mode-row">
+        <span class="panel-label" style="margin-bottom:0">Output</span>
+        <div class="seg" id="modeSeg">
+          <button class="seg-btn active" data-val="datauri" onclick="setMode('datauri')">Data URI</button>
+          <button class="seg-btn" data-val="raw" onclick="setMode('raw')">Raw Base64</button>
+          <button class="seg-btn" data-val="css" onclick="setMode('css')">CSS bg-image</button>
+        </div>
+      </div>
+
+      <textarea id="outputArea" rows="5" readonly spellcheck="false"></textarea>
+
+      <div class="action-row">
+        <button class="btn btn-ghost" id="copyBtn" onclick="copyOutput()">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── State ── */
+    let dataUri = '';
+    let rawBase64 = '';
+    let mimeType = '';
+    let currentMode = 'datauri';
+
+    /* ── Helpers ── */
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function clearError() {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    /* ── Mode toggle ── */
+    function setMode(val) {
+      currentMode = val;
+      document.querySelectorAll('#modeSeg .seg-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+      renderOutput();
+    }
+
+    function renderOutput() {
+      const out = document.getElementById('outputArea');
+      if (currentMode === 'datauri') {
+        out.value = dataUri;
+      } else if (currentMode === 'raw') {
+        out.value = rawBase64;
+      } else {
+        out.value = `background-image: url("${dataUri}");`;
+      }
+    }
+
+    /* ── Copy ── */
+    function copyOutput() {
+      const text = document.getElementById('outputArea').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Process file ── */
+    function processFile(file) {
+      clearError();
+
+      if (!file.type.startsWith('image/')) {
+        showError('Please select an image file (PNG, JPG, GIF, SVG, WebP).');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        dataUri = e.target.result;
+        // dataUri format: "data:image/png;base64,XXXX..."
+        const commaIdx = dataUri.indexOf(',');
+        rawBase64 = dataUri.slice(commaIdx + 1);
+        mimeType = file.type;
+
+        // Show preview
+        document.getElementById('imgThumb').src = dataUri;
+        document.getElementById('imgName').textContent = file.name;
+        document.getElementById('statType').textContent = file.type;
+        document.getElementById('statOrig').textContent = formatBytes(file.size);
+        document.getElementById('statEnc').textContent = formatBytes(rawBase64.length);
+
+        renderOutput();
+        document.getElementById('results').classList.add('visible');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ── Drop zone ── */
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) processFile(fileInput.files[0]);
+    });
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    });
+  </script>
+</body>
+</html>

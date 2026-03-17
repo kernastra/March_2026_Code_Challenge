@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 15 — Unit Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-color:     #1e2122;
+      --modal-bg:     #2d3436;
+      --secondary-bg: #3b4244;
+      --accent-gold:  #d4af37;
+      --text-main:    #ffffff;
+      --text-muted:   #dfe6e9;
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Modal ── */
+    .modal {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      border-top: 4px solid var(--accent-gold);
+      box-shadow: var(--modal-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .modal-header { margin-bottom: 1.75rem; }
+    .modal-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      letter-spacing: -0.01em;
+    }
+    .modal-header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    /* ── Panel label ── */
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Settings row ── */
+    .settings-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .setting-group {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .setting-group label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .setting-group input[type="number"] {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      background: var(--secondary-bg);
+      color: var(--text-main);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .setting-group input[type="number"]:focus { border-color: var(--accent-gold); }
+    .setting-group input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
+
+    /* ── Section ── */
+    .section { margin-bottom: 1.5rem; }
+
+    /* ── Big px input ── */
+    .px-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--secondary-bg);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.5rem 0.875rem;
+      transition: border-color 0.15s;
+      margin-bottom: 1rem;
+    }
+    .px-input-wrap:focus-within { border-color: var(--accent-gold); }
+
+    .px-input-wrap input {
+      flex: 1;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: transparent;
+      border: none;
+      outline: none;
+      min-width: 0;
+    }
+    .px-input-wrap input::placeholder { color: #636e72; font-weight: 300; font-size: 1rem; }
+
+    .px-unit {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      background: rgba(212,175,55,0.12);
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      user-select: none;
+    }
+
+    /* ── Result rows ── */
+    .result-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--secondary-bg);
+      border-radius: 8px;
+      padding: 0.6rem 0.875rem;
+    }
+
+    .result-unit {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      min-width: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .result-value {
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .result-value.empty {
+      color: #636e72;
+      font-style: italic;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+    }
+
+    /* ── Reverse section ── */
+    .reverse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .reverse-item {
+      background: var(--secondary-bg);
+      border-radius: 8px;
+      padding: 0.6rem 0.875rem;
+    }
+
+    .reverse-item label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+
+    .reverse-item input[type="number"] {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid rgba(255,255,255,0.12);
+      outline: none;
+      width: 100%;
+      padding-bottom: 0.25rem;
+      transition: border-color 0.15s;
+    }
+    .reverse-item input[type="number"]:focus { border-color: var(--accent-gold); }
+    .reverse-item input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
+    .reverse-item input[type="number"]::placeholder { color: #636e72; font-weight: 300; }
+
+    .reverse-px {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-weight: 300;
+    }
+    .reverse-px span {
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    /* ── Buttons ── */
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-ghost:hover { background: rgba(212,175,55,0.1); }
+    .btn-ghost.copied { background: #00b894; color: #fff; border-color: #00b894; }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 1.5rem 0;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .modal { padding: 1.5rem; }
+      .reverse-grid { grid-template-columns: 1fr; }
+      .settings-row { flex-direction: column; }
+      .setting-group { min-width: unset; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>Unit Converter</h1>
+      <p>Convert between px, rem, em, vh, and vw — with configurable base font size and viewport.</p>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-row">
+      <div class="setting-group">
+        <label for="baseFontSize">Base Font Size (px)</label>
+        <input type="number" id="baseFontSize" value="16" min="1" max="100" step="0.5" oninput="convertPx()" />
+      </div>
+      <div class="setting-group">
+        <label for="vpWidth">Viewport Width (px)</label>
+        <input type="number" id="vpWidth" value="1440" min="1" step="1" oninput="convertPx(); convertReverse()" />
+      </div>
+      <div class="setting-group">
+        <label for="vpHeight">Viewport Height (px)</label>
+        <input type="number" id="vpHeight" value="900" min="1" step="1" oninput="convertPx(); convertReverse()" />
+      </div>
+    </div>
+
+    <!-- Px → Other -->
+    <div class="section">
+      <span class="panel-label">Pixels → Other Units</span>
+      <div class="px-input-wrap">
+        <input type="number" id="pxInput" placeholder="Enter px value…" min="0" step="0.5" oninput="convertPx()" />
+        <span class="px-unit">px</span>
+      </div>
+      <div class="result-rows">
+        <div class="result-row">
+          <span class="result-unit">rem</span>
+          <span class="result-value empty" id="outRem">—</span>
+          <button class="btn-ghost" id="copyRem" onclick="copyVal('outRem','copyRem')">Copy</button>
+        </div>
+        <div class="result-row">
+          <span class="result-unit">em</span>
+          <span class="result-value empty" id="outEm">—</span>
+          <button class="btn-ghost" id="copyEm" onclick="copyVal('outEm','copyEm')">Copy</button>
+        </div>
+        <div class="result-row">
+          <span class="result-unit">vw</span>
+          <span class="result-value empty" id="outVw">—</span>
+          <button class="btn-ghost" id="copyVw" onclick="copyVal('outVw','copyVw')">Copy</button>
+        </div>
+        <div class="result-row">
+          <span class="result-unit">vh</span>
+          <span class="result-value empty" id="outVh">—</span>
+          <button class="btn-ghost" id="copyVh" onclick="copyVal('outVh','copyVh')">Copy</button>
+        </div>
+        <div class="result-row">
+          <span class="result-unit">pt</span>
+          <span class="result-value empty" id="outPt">—</span>
+          <button class="btn-ghost" id="copyPt" onclick="copyVal('outPt','copyPt')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Other → Px -->
+    <div class="section">
+      <span class="panel-label">Other Units → Pixels</span>
+      <div class="reverse-grid">
+        <div class="reverse-item">
+          <label>rem →</label>
+          <input type="number" id="inRem" placeholder="e.g. 1.5" step="0.01" oninput="fromRem()" />
+          <div class="reverse-px">= <span id="fromRemPx">—</span> px</div>
+        </div>
+        <div class="reverse-item">
+          <label>em →</label>
+          <input type="number" id="inEm" placeholder="e.g. 1.5" step="0.01" oninput="fromEm()" />
+          <div class="reverse-px">= <span id="fromEmPx">—</span> px</div>
+        </div>
+        <div class="reverse-item">
+          <label>vw →</label>
+          <input type="number" id="inVw" placeholder="e.g. 50" step="0.01" oninput="fromVw()" />
+          <div class="reverse-px">= <span id="fromVwPx">—</span> px</div>
+        </div>
+        <div class="reverse-item">
+          <label>vh →</label>
+          <input type="number" id="inVh" placeholder="e.g. 50" step="0.01" oninput="fromVh()" />
+          <div class="reverse-px">= <span id="fromVhPx">—</span> px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Helpers ── */
+    function getBase() { return parseFloat(document.getElementById('baseFontSize').value) || 16; }
+    function getVpW()  { return parseFloat(document.getElementById('vpWidth').value) || 1440; }
+    function getVpH()  { return parseFloat(document.getElementById('vpHeight').value) || 900; }
+
+    function fmt(n) {
+      // Up to 4 decimal places, strip trailing zeros
+      return parseFloat(n.toFixed(4)).toString();
+    }
+
+    function setResult(id, val, unit) {
+      const el = document.getElementById(id);
+      el.textContent = val + unit;
+      el.classList.remove('empty');
+    }
+
+    function clearResult(id) {
+      const el = document.getElementById(id);
+      el.textContent = '—';
+      el.classList.add('empty');
+    }
+
+    /* ── Px → Other ── */
+    function convertPx() {
+      const raw = document.getElementById('pxInput').value;
+      const px = parseFloat(raw);
+
+      if (raw === '' || isNaN(px)) {
+        ['outRem','outEm','outVw','outVh','outPt'].forEach(clearResult);
+        return;
+      }
+
+      const base = getBase();
+      const vpW  = getVpW();
+      const vpH  = getVpH();
+
+      setResult('outRem', fmt(px / base), 'rem');
+      setResult('outEm',  fmt(px / base), 'em');
+      setResult('outVw',  fmt((px / vpW) * 100), 'vw');
+      setResult('outVh',  fmt((px / vpH) * 100), 'vh');
+      setResult('outPt',  fmt(px * 0.75), 'pt');
+    }
+
+    /* ── Other → Px ── */
+    function fromRem() {
+      const v = parseFloat(document.getElementById('inRem').value);
+      document.getElementById('fromRemPx').textContent =
+        isNaN(v) ? '—' : fmt(v * getBase()) + ' px';
+    }
+    function fromEm() {
+      const v = parseFloat(document.getElementById('inEm').value);
+      document.getElementById('fromEmPx').textContent =
+        isNaN(v) ? '—' : fmt(v * getBase()) + ' px';
+    }
+    function fromVw() {
+      const v = parseFloat(document.getElementById('inVw').value);
+      document.getElementById('fromVwPx').textContent =
+        isNaN(v) ? '—' : fmt((v / 100) * getVpW()) + ' px';
+    }
+    function fromVh() {
+      const v = parseFloat(document.getElementById('inVh').value);
+      document.getElementById('fromVhPx').textContent =
+        isNaN(v) ? '—' : fmt((v / 100) * getVpH()) + ' px';
+    }
+
+    function convertReverse() {
+      fromRem(); fromEm(); fromVw(); fromVh();
+    }
+
+    /* ── Copy ── */
+    function copyVal(valId, btnId) {
+      const el = document.getElementById(valId);
+      const text = el.textContent;
+      if (!text || text === '—') return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(btnId);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    /* ── Init ── */
+    document.getElementById('pxInput').value = '16';
+    convertPx();
+  </script>
+</body>
+</html>

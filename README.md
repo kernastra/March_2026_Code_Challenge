@@ -10,12 +10,13 @@ All projects share the **Golden Dark** design system: deep charcoal backgrounds,
 
 ## Progress
 
-**11 of 31 days complete** · Week 2 in progress
+**16 of 31 days complete** · Week 3 in progress
 
 ```
 Week 1 █████████████████████  7 / 7
-Week 2 ████████████░░░░░░░░░  4 / 7
-Total  ████████░░░░░░░░░░░░░  11 / 31
+Week 2 █████████████████████  7 / 7
+Week 3 ██░░░░░░░░░░░░░░░░░░░  2 / 7
+Total  ███████████░░░░░░░░░░  16 / 31
 ```
 
 ---
@@ -35,6 +36,11 @@ Total  ████████░░░░░░░░░░░░░  11 / 31
 | [09](./Day_Nine/index.html) | **JSON Formatter & Validator** | Paste messy or minified JSON to validate, prettify with syntax highlighting (keys, strings, numbers, booleans, null each color-coded), or minify. Toggle 2 or 4-space indentation, see key count/depth/size stats, and copy the formatted output with one click. |
 | [10](./Day_Ten/index.html) | **Lorem Ipsum Dev Edition** | Generate tech-themed filler text in Web Dev, DevOps, AI/ML, or Full Stack flavors. Control paragraph count, sentence length, and output format (prose, HTML `<p>` tags, or bullet list). Copy with one click. |
 | [11](./Day_Eleven/index.html) | **Case Converter** | Paste any text or identifier (camelCase, snake_case, kebab-case, PascalCase, UPPER_SNAKE, spaced phrases — anything) and instantly see all five case variants with one-click copy for each. |
+| [12](./Day_Twelve/index.html) | **RegEx Playground** | Test regular expression patterns against sample strings with live match highlighting, match count, capture group inspection, and global/case-insensitive/multiline flag toggles. |
+| [13](./Day_Thirteen/index.html) | **Base64 Image Encoder** | Drop or select any image to instantly convert it to a Base64 data URI. Toggle between data URI, raw Base64, and CSS `background-image` output. Shows file size and encoded size stats. |
+| [14](./Day_Fourteen/index.html) | **Word & Character Counter** | Paste any text for live word, character (with/without spaces), sentence, paragraph, and line counts, plus an estimated reading time and a top-5 word frequency chart. |
+| [15](./Day_Fifteen/index.html) | **Unit Converter** | Convert px to rem, em, vw, vh, and pt with configurable base font size and viewport dimensions. Also supports reverse conversion from any unit back to pixels. |
+| [16](./Day_Sixteen/index.html) | **Meta Tag Generator** | Fill in title, description, URL, image, and social settings to instantly generate SEO, OpenGraph, and Twitter Card meta tags with a live social-share card preview and one-click copy. |
 
 ---
 
@@ -54,13 +60,13 @@ Total  ████████░░░░░░░░░░░░░  11 / 31
 - [x] Day 09: JSON Formatter & Validator (Prettify messy data strings)
 - [x] Day 10: Lorem Ipsum "Dev Edition" (Generates tech-themed filler text)
 - [x] Day 11: Case Converter (camelCase, snake_case, PascalCase, kebab-case)
-- [ ] Day 12: RegEx Playground (Test patterns against sample strings)
-- [ ] Day 13: Base64 Image Encoder (Convert small icons to strings)
-- [ ] Day 14: Word & Character Counter (With "Reading Time" estimator)
+- [x] Day 12: RegEx Playground (Test patterns against sample strings)
+- [x] Day 13: Base64 Image Encoder (Convert small icons to strings)
+- [x] Day 14: Word & Character Counter (With "Reading Time" estimator)
 
 ### 🚀 Week 3: Developer Productivity
-- [ ] Day 15: Unit Converter (px to rem / em / vh / vw)
-- [ ] Day 16: Meta Tag Generator (SEO, OpenGraph, and Twitter cards)
+- [x] Day 15: Unit Converter (px to rem / em / vh / vw)
+- [x] Day 16: Meta Tag Generator (SEO, OpenGraph, and Twitter cards)
 - [ ] Day 17: Cron Job Visualizer (Human-readable schedule generator)
 - [ ] Day 18: JWT Debugger — client-side only (Decode tokens securely)
 - [ ] Day 19: Git Command Helper (Interactive builder for complex git flows)
