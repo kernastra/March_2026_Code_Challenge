@@ -23,24 +23,36 @@ Total  ███████████░░░░░░░░░░  16 / 31
 
 ## Completed Projects
 
+### 🎨 Week 1 — Color & Type Foundation
+
 | Day | Title | What it does |
 |-----|-------|-------------|
-| [01](./Day_One/index.html) | **Hex-to-RGB Extractor** | Enter a hex color and extract its RGB and HSL values with a live color swatch and one-click copy for each format. |
-| [02](./Day_Two/index.html) | **Fluid Scale Generator** | Pick a base font size and a ratio (Golden Ratio, Perfect Fourth, Major Third, Minor Second) to generate a 7-step typographic scale with live preview and one-click CSS variable export. |
-| [03](./Day_Three/index.html) | **Accessible Palette Generator** | Enter a hex color to generate a 5-shade tonal palette (100–900) with WCAG AA/AAA contrast scores and one-click CSS variable export. |
-| [04](./Day_Four/index.html) | **CSS Variable Injector** | Edit the Golden Dark design tokens live with synchronized color pickers and hex inputs — the preview card updates in real time. Copy the full `:root { }` block for your own project. |
-| [05](./Day_Five/index.html) | **Google Fonts Pairer** | Search and select two Google Fonts (heading + body). Adjust weight and size with live controls, see them rendered side-by-side, then copy the ready-to-use `@import` CSS. Supports the Google Fonts API key to unlock all 1,500+ fonts. |
-| [06](./Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
-| [07](./Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
-| [08](./Day_Eight/index.html) | **Markdown Live Preview** | Write Markdown in the left panel and see it rendered as HTML in real time on the right. Supports headings, bold, italic, strikethrough, inline code, fenced code blocks, lists, blockquotes, links, and horizontal rules. Copy the generated HTML output with one click. |
-| [09](./Day_Nine/index.html) | **JSON Formatter & Validator** | Paste messy or minified JSON to validate, prettify with syntax highlighting (keys, strings, numbers, booleans, null each color-coded), or minify. Toggle 2 or 4-space indentation, see key count/depth/size stats, and copy the formatted output with one click. |
-| [10](./Day_Ten/index.html) | **Lorem Ipsum Dev Edition** | Generate tech-themed filler text in Web Dev, DevOps, AI/ML, or Full Stack flavors. Control paragraph count, sentence length, and output format (prose, HTML `<p>` tags, or bullet list). Copy with one click. |
-| [11](./Day_Eleven/index.html) | **Case Converter** | Paste any text or identifier (camelCase, snake_case, kebab-case, PascalCase, UPPER_SNAKE, spaced phrases — anything) and instantly see all five case variants with one-click copy for each. |
-| [12](./Day_Twelve/index.html) | **RegEx Playground** | Test regular expression patterns against sample strings with live match highlighting, match count, capture group inspection, and global/case-insensitive/multiline flag toggles. |
-| [13](./Day_Thirteen/index.html) | **Base64 Image Encoder** | Drop or select any image to instantly convert it to a Base64 data URI. Toggle between data URI, raw Base64, and CSS `background-image` output. Shows file size and encoded size stats. |
-| [14](./Day_Fourteen/index.html) | **Word & Character Counter** | Paste any text for live word, character (with/without spaces), sentence, paragraph, and line counts, plus an estimated reading time and a top-5 word frequency chart. |
-| [15](./Day_Fifteen/index.html) | **Unit Converter** | Convert px to rem, em, vw, vh, and pt with configurable base font size and viewport dimensions. Also supports reverse conversion from any unit back to pixels. |
-| [16](./Day_Sixteen/index.html) | **Meta Tag Generator** | Fill in title, description, URL, image, and social settings to instantly generate SEO, OpenGraph, and Twitter Card meta tags with a live social-share card preview and one-click copy. |
+| [01](./Week_01/Day_One/index.html) | **Hex-to-RGB Extractor** | Enter a hex color and extract its RGB and HSL values with a live color swatch and one-click copy for each format. |
+| [02](./Week_01/Day_Two/index.html) | **Fluid Scale Generator** | Pick a base font size and a ratio (Golden Ratio, Perfect Fourth, Major Third, Minor Second) to generate a 7-step typographic scale with live preview and one-click CSS variable export. |
+| [03](./Week_01/Day_Three/index.html) | **Accessible Palette Generator** | Enter a hex color to generate a 5-shade tonal palette (100–900) with WCAG AA/AAA contrast scores and one-click CSS variable export. |
+| [04](./Week_01/Day_Four/index.html) | **CSS Variable Injector** | Edit the Golden Dark design tokens live with synchronized color pickers and hex inputs — the preview card updates in real time. Copy the full `:root { }` block for your own project. |
+| [05](./Week_01/Day_Five/index.html) | **Google Fonts Pairer** | Search and select two Google Fonts (heading + body). Adjust weight and size with live controls, see them rendered side-by-side, then copy the ready-to-use `@import` CSS. Supports the Google Fonts API key to unlock all 1,500+ fonts. |
+| [06](./Week_01/Day_Six/index.html) | **Glassmorphism UI Maker** | Dial in blur, tint color, opacity, border, radius, and shadow with live sliders. See the glass card update in real time over a vivid gradient background, then copy the ready-to-use CSS. Three presets: Frosted, Dark Glass, and Colored. |
+| [07](./Week_01/Day_Seven/index.html) | **SVG Wave/Blob Generator** | Generate smooth SVG section dividers (waves) or organic blobs with live controls for amplitude, frequency, layers, roughness, fill color, and opacity. Flip, stack layers, choose smooth or sharp edges, and copy the ready-to-use inline SVG. |
+
+### ✍️ Week 2 — Content & Formatting
+
+| Day | Title | What it does |
+|-----|-------|-------------|
+| [08](./Week_02/Day_Eight/index.html) | **Markdown Live Preview** | Write Markdown in the left panel and see it rendered as HTML in real time on the right. Supports headings, bold, italic, strikethrough, inline code, fenced code blocks, lists, blockquotes, links, and horizontal rules. Copy the generated HTML output with one click. |
+| [09](./Week_02/Day_Nine/index.html) | **JSON Formatter & Validator** | Paste messy or minified JSON to validate, prettify with syntax highlighting (keys, strings, numbers, booleans, null each color-coded), or minify. Toggle 2 or 4-space indentation, see key count/depth/size stats, and copy the formatted output with one click. |
+| [10](./Week_02/Day_Ten/index.html) | **Lorem Ipsum Dev Edition** | Generate tech-themed filler text in Web Dev, DevOps, AI/ML, or Full Stack flavors. Control paragraph count, sentence length, and output format (prose, HTML `<p>` tags, or bullet list). Copy with one click. |
+| [11](./Week_02/Day_Eleven/index.html) | **Case Converter** | Paste any text or identifier (camelCase, snake_case, kebab-case, PascalCase, UPPER_SNAKE, spaced phrases — anything) and instantly see all five case variants with one-click copy for each. |
+| [12](./Week_02/Day_Twelve/index.html) | **RegEx Playground** | Test regular expression patterns against sample strings with live match highlighting, match count, capture group inspection, and global/case-insensitive/multiline flag toggles. |
+| [13](./Week_02/Day_Thirteen/index.html) | **Base64 Image Encoder** | Drop or select any image to instantly convert it to a Base64 data URI. Toggle between data URI, raw Base64, and CSS `background-image` output. Shows file size and encoded size stats. |
+| [14](./Week_02/Day_Fourteen/index.html) | **Word & Character Counter** | Paste any text for live word, character (with/without spaces), sentence, paragraph, and line counts, plus an estimated reading time and a top-5 word frequency chart. |
+
+### 🚀 Week 3 — Developer Productivity
+
+| Day | Title | What it does |
+|-----|-------|-------------|
+| [15](./Week_03/Day_Fifteen/index.html) | **Unit Converter** | Convert px to rem, em, vw, vh, and pt with configurable base font size and viewport dimensions. Also supports reverse conversion from any unit back to pixels. |
+| [16](./Week_03/Day_Sixteen/index.html) | **Meta Tag Generator** | Fill in title, description, URL, image, and social settings to instantly generate SEO, OpenGraph, and Twitter Card meta tags with a live social-share card preview and one-click copy. |
 
 ---
 
